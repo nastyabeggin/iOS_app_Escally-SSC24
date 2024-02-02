@@ -16,24 +16,28 @@ struct ClimbingRouteDetailView: View {
     var body: some View {
         Form {
             Section {
-                if let image = viewModel.selectedRoute.image, !isEditing {
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity, alignment: .center)
-                } else if viewModel.selectedRoute.image == nil && !isEditing {
-                    ImagePickerView(
-                        imageState: $viewModel.imageState,
-                        selectedPickerItem: $viewModel.selectedPickerItem
-                    ).onChange(of: viewModel.selectedPickerItem) {
-                        saveUpdatedRoute()
+                Group {
+                    if let image = viewModel.selectedRoute.image, !isEditing {
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    } else if viewModel.selectedRoute.image == nil && !isEditing {
+                        ImagePickerView(
+                            imageState: $viewModel.imageState,
+                            selectedPickerItem: $viewModel.selectedPickerItem
+                        ).onChange(of: viewModel.selectedPickerItem) {
+                            saveUpdatedRoute()
+                        }
+                    } else if isEditing {
+                        ImagePickerView(
+                            imageState: $viewModel.imageState,
+                            selectedPickerItem: $viewModel.selectedPickerItem
+                        )
                     }
-                } else if isEditing {
-                    ImagePickerView(
-                        imageState: $viewModel.imageState,
-                        selectedPickerItem: $viewModel.selectedPickerItem
-                    )
                 }
+                .transition(.opacity)
+                .animation(.default, value: isEditing)
             }
             .frame(height: 200)
             RouteDetailsFieldsView(
@@ -44,26 +48,31 @@ struct ClimbingRouteDetailView: View {
                 succeeded: $viewModel.selectedRoute.succeeded,
                 flashed: $viewModel.selectedRoute.flashed
             )
+            .transition(.slide)
+            .animation(.default, value: isEditing)
             NotesView(
                 isEditing: $isEditing,
                 notes: $viewModel.selectedRoute.notes
             )
+            .transition(.slide)
+            .animation(.default, value: isEditing)
         }
         .navigationBarTitle("Route Details", displayMode: .inline)
         .navigationBarItems(
             trailing: Button(isEditing ? "Done" : "Edit") {
-                if isEditing {
-                    saveUpdatedRoute()
-                } else {
-                    draftRoute = viewModel.selectedRoute
+                withAnimation {
+                    if isEditing {
+                        saveUpdatedRoute()
+                    } else {
+                        draftRoute = viewModel.selectedRoute
+                    }
+                    isEditing.toggle()
                 }
-                isEditing.toggle()
             }
         )
     }
     
     private func saveUpdatedRoute() {
-        viewModel.imageState
         if case .success(let image) = viewModel.imageState {
             draftRoute.image = image
         } else {
