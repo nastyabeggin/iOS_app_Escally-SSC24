@@ -1,0 +1,43 @@
+import SwiftUI
+import PhotosUI
+
+struct AddClimbingRouteView: View {
+    @ObservedObject var viewModel: AddClimbingRouteViewModel
+    @Environment(\.presentationMode) var presentationMode
+    
+    var body: some View {
+        NavigationView {
+            Form {
+                ImagePickerView(
+                    imageState: $viewModel.imageState,
+                    selectedPickerItem: $viewModel.selectedPickerItem
+                )
+                RouteDetailsFieldsView(
+                    isEditing: .constant(true),
+                    name: $viewModel.name,
+                    difficulty: $viewModel.difficulty,
+                    date: $viewModel.date,
+                    succeeded: $viewModel.succeeded,
+                    flashed: $viewModel.flashed
+                )
+                NotesView(
+                    isEditing: .constant(true),
+                    notes: $viewModel.notes
+                )
+            }
+            .navigationBarItems(leading: Button("Cancel") {
+                presentationMode.wrappedValue.dismiss()
+            }, trailing: Button("Save") {
+                viewModel.saveRoute()
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+    }
+}
+
+struct AddClimbingRouteView_Previews: PreviewProvider {
+    static var previews: some View {
+        AddClimbingRouteView(viewModel: AddClimbingRouteViewModel(climbingRoutesData: .init()))
+    }
+}
+
