@@ -51,6 +51,7 @@ class ClimbingRouteViewModel: ObservableObject {
                 case .success(let data):
                     if let data = data, let uiImage = UIImage(data: data) {
                         self?.imageState = .success(Image(uiImage: uiImage))
+                        self?.updateRouteImage(Image(uiImage: uiImage))
                     } else {
                         self?.imageState = .failure(TransferError.importFailed)
                     }
@@ -58,6 +59,14 @@ class ClimbingRouteViewModel: ObservableObject {
                     self?.imageState = .failure(error)
                 }
             }
+        }
+    }
+
+    private func updateRouteImage(_ image: Image) {
+        selectedRoute.image = image
+        
+        if let index = climbingRoutesData.climbingRoutes.firstIndex(where: { $0.id == selectedRoute.id }) {
+            climbingRoutesData.climbingRoutes[index].image = image
         }
     }
 

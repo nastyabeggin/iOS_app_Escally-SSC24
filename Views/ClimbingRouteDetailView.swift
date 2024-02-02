@@ -21,6 +21,13 @@ struct ClimbingRouteDetailView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, alignment: .center)
+                } else if viewModel.selectedRoute.image == nil && !isEditing {
+                    ImagePickerView(
+                        imageState: $viewModel.imageState,
+                        selectedPickerItem: $viewModel.selectedPickerItem
+                    ).onChange(of: viewModel.selectedPickerItem) {
+                        saveUpdatedRoute()
+                    }
                 } else if isEditing {
                     ImagePickerView(
                         imageState: $viewModel.imageState,
@@ -46,14 +53,23 @@ struct ClimbingRouteDetailView: View {
         .navigationBarItems(
             trailing: Button(isEditing ? "Done" : "Edit") {
                 if isEditing {
-                    viewModel.objectWillChange.send()
-                    viewModel.updateRoute(updatedRoute: draftRoute)
+                    saveUpdatedRoute()
                 } else {
                     draftRoute = viewModel.selectedRoute
                 }
                 isEditing.toggle()
             }
         )
+    }
+    
+    private func saveUpdatedRoute() {
+        viewModel.imageState
+        if case .success(let image) = viewModel.imageState {
+            draftRoute.image = image
+        } else {
+            draftRoute.image = nil
+        }
+        viewModel.objectWillChange.send()
     }
 }
 
