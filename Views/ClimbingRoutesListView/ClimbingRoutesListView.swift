@@ -8,30 +8,30 @@ struct ClimbingRoutesListView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach($climbingRoutesData.climbingRoutes, id: \.self) { route in
-                    NavigationLink {
-                        ClimbingRouteDetailView(
-                            viewModel: ClimbingRouteViewModel(
-                                climbingRoutesData: climbingRoutesData,
-                                climbingRoute: route)
-                        )} label: {
-                            ClimbingRouteRow(route: route)
-                        }
+            VStack {
+                List {
+                    ForEach($climbingRoutesData.sortedRoutes, id: \.self) { route in
+                        NavigationLink {
+                            ClimbingRouteDetailView(
+                                viewModel: ClimbingRouteViewModel(
+                                    climbingRoutesData: climbingRoutesData,
+                                    climbingRoute: route)
+                            )} label: {
+                                ClimbingRouteRow(route: route)
+                            }
+                    }
+                    .onDelete(perform: deleteRoute)
                 }
-                .onDelete(perform: deleteRoute)
             }
             .toolbar {
-                Button(action: {
-                    showingAddRouteView.toggle()
-                }) {
-                    Image(systemName: "plus")
+                ToolbarItemGroup(placement: .navigationBarTrailing) {
+                    toolbarMenu
                 }
             }
             .navigationTitle("Climbing Routes")
         }
         .sheet(isPresented: $showingAddRouteView) {
-            AddClimbingRouteView(viewModel: .init(climbingRoutesData: climbingRoutesData))
+            AddClimbingRouteView(viewModel: AddClimbingRouteViewModel(climbingRoutesData: climbingRoutesData))
         }
         .alert(isPresented: $isDeleteAlertPresented) {
             Alert(
@@ -46,6 +46,25 @@ struct ClimbingRoutesListView: View {
                 },
                 secondaryButton: .cancel()
             )
+        }
+    }
+    
+    private var toolbarMenu: some View {
+        Menu {
+            Menu {
+                Picker(selection: $climbingRoutesData.selectedSortOption, label: Text("Sorting options")) {
+                    Text("Date").tag(SortOption.byDate)
+                    Text("Name").tag(SortOption.byName)
+                }
+            }
+        label: {
+            Label("Sort", systemImage: "arrow.up.arrow.down")
+        }
+            Button(action: { showingAddRouteView.toggle() }) {
+                Label("Add Route", systemImage: "plus")
+            }
+        } label: {
+            Label("Options", systemImage: "ellipsis.circle")
         }
     }
     
