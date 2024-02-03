@@ -3,7 +3,6 @@ import SwiftUI
 @main
 struct MyApp: App {
     @State var showWelcome = false
-    @State var climbingRoutesData = ClimbingRoutesData()
     
     var body: some Scene {
         WindowGroup {
@@ -12,7 +11,7 @@ struct MyApp: App {
             } else {
                 TabView {
                     Group {
-                        ClimbingRoutesView(climbingRoutesData: climbingRoutesData)
+                        ClimbingRoutesListView()
                             .tabItem {
                                 Label("Climbing", systemImage: "mountain.2")
                             }

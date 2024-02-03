@@ -1,14 +1,17 @@
 import Foundation
 import PhotosUI
 import SwiftUI
-import UIKit
 
-class ClimbingRoute: Identifiable, Hashable, ObservableObject {
+struct ClimbingRoute: Identifiable {
     let id: UUID
     var name: String
     var difficulty: RouteDifficulty
     var date: Date
-    var succeeded: Bool
+    var succeeded: Bool {
+        didSet {
+            flashed = succeeded && flashed
+        }
+    }
     var flashed: Bool
     var notes: String
     var image: Image?
@@ -31,7 +34,9 @@ class ClimbingRoute: Identifiable, Hashable, ObservableObject {
         self.flashed = flashed
         self.notes = notes
     }
-    
+}
+
+extension ClimbingRoute: Hashable {
     static func == (lhs: ClimbingRoute, rhs: ClimbingRoute) -> Bool {
         lhs.id == rhs.id
     }

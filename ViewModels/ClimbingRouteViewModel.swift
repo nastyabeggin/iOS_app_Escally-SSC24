@@ -4,7 +4,9 @@ import Combine
 
 class ClimbingRouteViewModel: ObservableObject {
     @State var climbingRoutesData: ClimbingRoutesData
-    @Published var selectedRoute: ClimbingRoute
+    @Binding var selectedRoute: ClimbingRoute
+    @Published var showConfirmationDialog: Bool = false
+    @Published var draftRoute: ClimbingRoute
     @Published var imageState: ImageState = .empty
     @Published var selectedPickerItem: PhotosPickerItem? = nil {
         didSet {
@@ -16,30 +18,18 @@ class ClimbingRouteViewModel: ObservableObject {
         }
     }
 
-    var id: UUID?
-    private var cancellables: Set<AnyCancellable> = []
-
-    init(climbingRoutesData: ClimbingRoutesData, climbingRoute: ClimbingRoute) {
+    init(climbingRoutesData: ClimbingRoutesData, climbingRoute: Binding<ClimbingRoute>) {
         self.climbingRoutesData = climbingRoutesData
-        self.selectedRoute = climbingRoute
-        if let image = climbingRoute.image {
+        self._selectedRoute = climbingRoute
+        self.draftRoute = climbingRoute.wrappedValue
+        if let image = climbingRoute.wrappedValue.image {
             imageState = .success(image)
         }
-        setupSubscriptions()
     }
 
-    deinit {
-        
-    }
-    
-    func remove() {
-        guard let index = climbingRoutesData.climbingRoutes.firstIndex(where: { $0.id == selectedRoute.id }) else { return }
-        climbingRoutesData.climbingRoutes.remove(at: index)
-    }
-    
-    func updateRoute(updatedRoute: ClimbingRoute) {
-        guard let index = climbingRoutesData.climbingRoutes.firstIndex(where: { $0.id == updatedRoute.id }) else { return }
-        climbingRoutesData.climbingRoutes[index] = updatedRoute
+    func saveDraftRoute() {
+        guard let index = climbingRoutesData.climbingRoutes.firstIndex(where: { $0.id == draftRoute.id }) else { return }
+        climbingRoutesData.climbingRoutes[index] = draftRoute
     }
 
     
@@ -68,12 +58,5 @@ class ClimbingRouteViewModel: ObservableObject {
         if let index = climbingRoutesData.climbingRoutes.firstIndex(where: { $0.id == selectedRoute.id }) {
             climbingRoutesData.climbingRoutes[index].image = image
         }
-    }
-
-    private func setupSubscriptions() {
-        $selectedRoute
-            .compactMap { $0.id }
-            .assign(to: \.id, on: self)
-            .store(in: &cancellables)
     }
 }

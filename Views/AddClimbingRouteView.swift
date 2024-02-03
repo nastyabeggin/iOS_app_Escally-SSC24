@@ -12,8 +12,7 @@ struct AddClimbingRouteView: View {
                     imageState: $viewModel.imageState,
                     selectedPickerItem: $viewModel.selectedPickerItem
                 )
-                RouteDetailsFieldsView(
-                    isEditing: .constant(true),
+                RouteEditFieldsView(
                     name: $viewModel.name,
                     difficulty: $viewModel.difficulty,
                     date: $viewModel.date,

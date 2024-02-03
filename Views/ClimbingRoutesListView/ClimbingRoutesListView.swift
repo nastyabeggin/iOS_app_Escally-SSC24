@@ -1,13 +1,15 @@
 import SwiftUI
 
-struct ClimbingRoutesView: View {
-    @State var climbingRoutesData: ClimbingRoutesData
+struct ClimbingRoutesListView: View {
+    @StateObject var climbingRoutesData = ClimbingRoutesData()
     @State private var showingAddRouteView = false
+    @State var isDeleteAlertPresented = false
+    @State private var routeIndexToDelete: Int?
     
     var body: some View {
-        NavigationSplitView {
+        NavigationView {
             List {
-                ForEach(climbingRoutesData.climbingRoutes) { route in
+                ForEach($climbingRoutesData.climbingRoutes, id: \.self) { route in
                     NavigationLink {
                         ClimbingRouteDetailView(
                             viewModel: ClimbingRouteViewModel(
@@ -27,20 +29,33 @@ struct ClimbingRoutesView: View {
                 }
             }
             .navigationTitle("Climbing Routes")
-        } detail: {
-            Text("Select a Route")
         }
         .sheet(isPresented: $showingAddRouteView) {
             AddClimbingRouteView(viewModel: .init(climbingRoutesData: climbingRoutesData))
+        }
+        .alert(isPresented: $isDeleteAlertPresented) {
+            Alert(
+                title: Text("Confirm Delete"),
+                message: Text("Are you sure you want to delete this note?"),
+                primaryButton: .destructive(Text("Delete")) {
+                    withAnimation {
+                        guard let index = routeIndexToDelete else { return }
+                        climbingRoutesData.climbingRoutes.remove(at: index)
+                        isDeleteAlertPresented = false
+                    }
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
     
     private func deleteRoute(at offsets: IndexSet) {
         guard let index = offsets.first else { return }
-        climbingRoutesData.climbingRoutes.remove(at: index)
+        routeIndexToDelete = index
+        isDeleteAlertPresented = true
     }
 }
 
 #Preview {
-    ClimbingRoutesView(climbingRoutesData: .init())
+    ClimbingRoutesListView(climbingRoutesData: .init())
 }

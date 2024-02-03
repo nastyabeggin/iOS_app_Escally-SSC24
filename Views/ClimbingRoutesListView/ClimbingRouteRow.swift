@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ClimbingRouteRow: View {
-    var route: ClimbingRoute
+    @Binding var route: ClimbingRoute
 
     var body: some View {
         HStack {
@@ -22,8 +22,3 @@ struct ClimbingRouteRow: View {
         }
     }
 }
-
-
-//#Preview {
-//    ClimbingRouteRow(route: .constant(ClimbingRoute(name: "Test Route", difficulty: .red, date: .now, succeeded: true, flashed: false, notes: "")))
-//}
