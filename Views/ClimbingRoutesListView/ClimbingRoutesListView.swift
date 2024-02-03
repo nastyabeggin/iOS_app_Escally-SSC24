@@ -5,24 +5,31 @@ struct ClimbingRoutesListView: View {
     @State private var showingAddRouteView = false
     @State var isDeleteAlertPresented = false
     @State private var routeIndexToDelete: Int?
+    @State private var searchQuery = ""
+    
+    var filteredIndices: [Int] {
+        climbingRoutesData.sortedRoutes.enumerated().compactMap { index, route in
+            searchQuery.isEmpty || route.name.localizedCaseInsensitiveContains(searchQuery) ? index : nil
+        }
+    }
     
     var body: some View {
         NavigationView {
-            VStack {
-                List {
-                    ForEach($climbingRoutesData.sortedRoutes, id: \.self) { route in
-                        NavigationLink {
-                            ClimbingRouteDetailView(
-                                viewModel: ClimbingRouteViewModel(
-                                    climbingRoutesData: climbingRoutesData,
-                                    climbingRoute: route)
-                            )} label: {
-                                ClimbingRouteRow(route: route)
-                            }
-                    }
-                    .onDelete(perform: deleteRoute)
+            List {
+                ForEach(filteredIndices, id: \.self) { index in
+                    let route = $climbingRoutesData.sortedRoutes[index]
+                    NavigationLink {
+                        ClimbingRouteDetailView(
+                            viewModel: ClimbingRouteViewModel(
+                                climbingRoutesData: climbingRoutesData,
+                                climbingRoute: route)
+                        )} label: {
+                            ClimbingRouteRow(route: route)
+                        }
                 }
+                .onDelete(perform: deleteRoute)
             }
+            .searchable(text: $searchQuery, prompt: "Search Routes")
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     toolbarMenu
@@ -55,6 +62,8 @@ struct ClimbingRoutesListView: View {
                 Picker(selection: $climbingRoutesData.selectedSortOption, label: Text("Sorting options")) {
                     Text("Date").tag(SortOption.byDate)
                     Text("Name").tag(SortOption.byName)
+                    Text("Difficulty").tag(SortOption.byDifficulty)
+                    Text("Succeeded").tag(SortOption.bySuccess)
                 }
             }
         label: {

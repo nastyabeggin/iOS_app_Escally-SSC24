@@ -17,6 +17,10 @@ class ClimbingRoutesData: ObservableObject {
                     return routes.sorted { $0.date > $1.date }
                 case .byName:
                     return routes.sorted { $0.name < $1.name }
+                case .bySuccess:
+                    return routes.sorted { $0.succeeded && !$1.succeeded }
+                case .byDifficulty:
+                    return routes.sorted { $0.difficulty > $1.difficulty }
                 }
             }
             .assign(to: \.sortedRoutes, on: self)
