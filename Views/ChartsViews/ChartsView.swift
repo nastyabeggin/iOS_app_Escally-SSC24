@@ -4,7 +4,7 @@ import Charts
 struct RoutesByColor: Identifiable, Equatable {
     let id = UUID()
     let difficulty: RouteDifficulty
-    let count: Double
+    let count: Int
 }
 
 struct ChartsView: View {
@@ -23,7 +23,6 @@ struct ChartsView: View {
                 },
             by: { $0.difficulty }
         )
-        let countAll = climbingRoutesData.testable.count
         return grouped
             .sorted {
                 $0.key.rawValue > $1.key.rawValue
@@ -31,7 +30,7 @@ struct ChartsView: View {
             .map {
                 RoutesByColor(
                     difficulty: $0.key,
-                    count: Double($0.value.count) / Double (countAll)
+                    count: $0.value.count
                 )
             }
     }
@@ -83,6 +82,11 @@ struct ChartsView: View {
                             route.difficulty.rawValue
                         )
                     )
+                    .annotation(position: .overlay) {
+                        Text("\(route.count)")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                    }
                 }
                 .chartLegend(position: .bottom, alignment: .center)
                 .chartForegroundStyleScale(range: routeColors)
