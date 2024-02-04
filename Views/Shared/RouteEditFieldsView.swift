@@ -17,9 +17,14 @@ struct RouteEditFieldsView: View {
             }
             .tint(difficulty.color)
             .pickerStyle(.menu)
-            DatePicker("Date", selection: $date, displayedComponents: [.date])
-                .datePickerStyle(.compact)
-                .frame(maxHeight: 400)
+            DatePicker(
+                "Date",
+                selection: $date,
+                in: Constants.dateRange,
+                displayedComponents: [.date]
+            )
+            .datePickerStyle(.compact)
+            .frame(maxHeight: 400)
             Toggle(isOn: $succeeded.animation()) {
                 Text("Succeeded")
             }

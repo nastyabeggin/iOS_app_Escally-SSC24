@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ClimbingRoutesListView: View {
-    @StateObject var climbingRoutesData = ClimbingRoutesData()
+    @ObservedObject var climbingRoutesData: ClimbingRoutesData
     @State private var showingAddRouteView = false
     @State var isDeleteAlertPresented = false
     @State private var routeIndexToDelete: Int?
@@ -37,6 +37,7 @@ struct ClimbingRoutesListView: View {
             }
             .navigationTitle("Climbing Routes")
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .sheet(isPresented: $showingAddRouteView) {
             AddClimbingRouteView(viewModel: AddClimbingRouteViewModel(climbingRoutesData: climbingRoutesData))
         }
