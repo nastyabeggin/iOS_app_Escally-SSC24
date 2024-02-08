@@ -40,61 +40,82 @@ struct ChartsView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                HStack(spacing: 12) {
-                    DatePicker(
-                        "From – to",
-                        selection: $startDate,
-                        in: Constants.dateRange,
-                        displayedComponents: .date
-                    )
-                    .lineLimit(1, reservesSpace: true)
-                    .pickerStyle(.inline)
-                    .datePickerStyle(.compact)
-                    .padding(.leading, 30)
-                    DatePicker(
-                        "",
-                        selection: $endDate,
-                        in: Constants.dateRange,
-                        displayedComponents: .date
-                    )
-                    .datePickerStyle(.compact)
-                    .pickerStyle(.inline)
-                    .labelsHidden()
-                    .padding(.trailing, 30)
-                }
-                Toggle(isOn: $showOnlySucceeded, label: {
-                    Text("Only succeeded")
-                })
-                .padding(.horizontal, 30)
-                Chart(routesByDifficulty) { route in
-                    SectorMark(
-                        angle: .value(
-                            route.difficulty.rawValue,
-                            route.count
-                        ),
-                        angularInset: 1.5
-                    )
-                    .cornerRadius(5)
-                    .foregroundStyle(
-                        by: .value(
-                            Text(route.difficulty.rawValue),
-                            route.difficulty.rawValue
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack (spacing: 20) {
+                        HStack {
+                            Text("Routes grouped by difficulty")
+                                .font(.headline)
+                                .padding(.leading)
+                                .frame(alignment: .leading)
+                            Spacer()
+                        }
+                        HStack(spacing: 12) {
+                            DatePicker(
+                                "From – to",
+                                selection: $startDate,
+                                in: Constants.dateRange,
+                                displayedComponents: .date
+                            )
+                            .lineLimit(1, reservesSpace: true)
+                            .pickerStyle(.inline)
+                            .datePickerStyle(.compact)
+                            .padding(.leading)
+                            DatePicker(
+                                "",
+                                selection: $endDate,
+                                in: Constants.dateRange,
+                                displayedComponents: .date
+                            )
+                            .datePickerStyle(.compact)
+                            .pickerStyle(.inline)
+                            .labelsHidden()
+                            .padding(.trailing)
+                        }
+                        .padding(.top, 30)
+                        Toggle(isOn: $showOnlySucceeded, label: {
+                            Text("Only succeeded")
+                        })
+                        .padding(.top, -10)
+                        .padding(.horizontal)
+                        Chart(routesByDifficulty) { route in
+                            SectorMark(
+                                angle: .value(
+                                    route.difficulty.rawValue,
+                                    route.count
+                                ),
+                                angularInset: 1.5
+                            )
+                            .cornerRadius(5)
+                            .foregroundStyle(
+                                by: .value(
+                                    Text(route.difficulty.rawValue)
+                                        .bold(),
+                                    route.difficulty.rawValue
+                                )
+                            )
+                            .annotation(position: .overlay) {
+                                Text("\(route.count)")
+                                    .font(.headline)
+                                    .foregroundStyle(.white)
+                            }
+                        }
+                        .chartLegend(position: .bottom, alignment: .center, spacing: 30)
+                        .font(.title)
+                        .chartForegroundStyleScale(range: routeColors)
+                        .animation(.bouncy, value: routesByDifficulty)
+                        .frame(
+                            width: geometry.size.width * 0.8,
+                            height: geometry.size.height * 0.45
                         )
-                    )
-                    .annotation(position: .overlay) {
-                        Text("\(route.count)")
-                            .font(.headline)
-                            .foregroundStyle(.white)
+                        .padding(.vertical, geometry.size.height > 1024 ? 200 : 50)
+                        .frame(maxWidth: .infinity)
                     }
                 }
-                .chartLegend(position: .bottom, alignment: .center)
-                .chartForegroundStyleScale(range: routeColors)
-                .animation(.bouncy, value: routesByDifficulty)
-                .frame(width: 200, height: 400)
             }
             .navigationTitle("Charts")
         }
+        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
