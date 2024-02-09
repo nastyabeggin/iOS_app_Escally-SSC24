@@ -21,6 +21,7 @@ struct TimelineChartView: View {
     @State private var weekStartDate: Date
     @State private var timeRange: TimeRange = .week
     @State private var showDateLabel: Bool = true
+    @State private var routesData: [Date: Int]  = [:]
     
     init(climbingRoutesData: ClimbingRoutesData) {
         self.climbingRoutesData = climbingRoutesData
@@ -30,25 +31,7 @@ struct TimelineChartView: View {
         let daysToSubtract = (dateComponents.weekday! + 5) % 7
         dateComponents.day! -= daysToSubtract
         self._weekStartDate = State(initialValue: calendar.date(from: dateComponents)!)
-    }
-    
-    private var weeklyRoutesData: [Date: Int] {
-        let calendar = Calendar.current
-        var weekDates: [Date] = []
-        
-        for i in 0..<7 {
-            if let date = calendar.date(byAdding: .day, value: i, to: weekStartDate) {
-                weekDates.append(date)
-            }
-        }
-        let groupedRoutes = Dictionary(grouping: climbingRoutesData.testable) { route in
-            calendar.startOfDay(for: route.date)
-        }
-        var routesByDate: [Date: Int] = [:]
-        weekDates.forEach { date in
-            routesByDate[date] = groupedRoutes[date]?.count ?? 0
-        }
-        return routesByDate
+        self._routesData = State(initialValue: self.calculateData(for: .week))
     }
     
     var body: some View {
@@ -92,55 +75,40 @@ struct TimelineChartView: View {
                     }
                 }
                 .padding()
-                Chart {
-                    ForEach(weeklyRoutesData.keys.sorted(), id: \.self) { date in
-                        BarMark(
-                            x: .value("Date", date, unit: .day),
-                            y: .value("Number of Routes", weeklyRoutesData[date, default: 0])
-                        )
-                        .foregroundStyle(by: .value("Date", date))
-                    }
-                }
-                .chartXAxis(showDateLabel ? Visibility.visible : Visibility.hidden)
+                RoutesChartBarView(routesData: routesData, timeRange: timeRange, showDateLabel: showDateLabel)
+                    .frame(height: geometry.size.height / 3)
+                    .padding()
                 // TODO: add colors for chart
-                .gesture (
-                    DragGesture(minimumDistance: 0, coordinateSpace: .local)
-                        .onEnded({ value in
-                            if value.translation.width < 0 {
-                                // TODO: stop scrolling if current week
-                                navigateToNextWeek()
-                            }
-                            
-                            if value.translation.width > 0 {
-                                navigateToPreviousWeek()
-                            }
-                        })
-                )
-                .chartPlotStyle { plotArea in
-                    plotArea
-                        .frame(height: geometry.size.height / 3)
-                }
-                .chartXAxis {
-                    AxisMarks(values: .stride(by: .day)) {
-                        AxisValueLabel(format: .dateTime.day(.defaultDigits).weekday(), centered: true)
-                        AxisGridLine()
-                        AxisTick()
+                    .onChange(of: timeRange) {
+                        DispatchQueue.main.async {
+                            self.routesData = self.calculateData(for: timeRange)
+                        }
                     }
-                }
-                .chartYScale(domain: 0...(weeklyRoutesData.values.max()! + 3))
-                .chartYAxis {
-                    AxisMarks(values: .automatic(desiredCount: 3))
-                }
-                .padding()
+                    .gesture (
+                        DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                            .onEnded({ value in
+                                if value.translation.width < 0 {
+                                    // TODO: stop scrolling if current week
+                                    navigateToNextWeek()
+                                }
+                                
+                                if value.translation.width > 0 {
+                                    navigateToPreviousWeek()
+                                }
+                            })
+                    )
             }
             .onChange(of: weekStartDate) {
                 self.showDateLabel = false
-
+                
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         self.showDateLabel = true
                     }
                 }
+            }
+            .onChange(of: timeRange) {
+                updateChartForSelectedTimeRange()
             }
             .animation(.easeInOut(duration: 0.6), value: weekStartDate)
         }
@@ -155,11 +123,11 @@ struct TimelineChartView: View {
     }
     
     private func calculateAverageRouteNumber() -> String {
-        let workoutDays = weeklyRoutesData
+        let workoutDays = routesData
             .values
             .filter { $0 != 0 }
             .count
-        let allRoutes = weeklyRoutesData.values.reduce(0, +)
+        let allRoutes = routesData.values.reduce(0, +)
         
         return workoutDays == 0 ? "0" : String(allRoutes / workoutDays)
     }
@@ -183,6 +151,61 @@ struct TimelineChartView: View {
         let endDayMonth = dateFormatter.string(from: weekEndDate)
         
         return "\(startDay) – \(endDayMonth)"
+    }
+    
+    private func calculateData(for timeRange: TimeRange) -> [Date: Int] {
+        let calendar = Calendar.current
+        var dateComponents = DateComponents()
+        let startDate: Date
+        let endDate: Date
+        
+        switch timeRange {
+        case .week:
+            startDate = weekStartDate
+            dateComponents.day = 6
+        case .month:
+            startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: weekStartDate))!
+            dateComponents.month = 1
+            dateComponents.day = -1
+        case .sixMonths:
+            startDate = calendar.date(from: calendar.dateComponents([.year, .month], from: weekStartDate))!
+            dateComponents.month = 6
+            dateComponents.day = -1
+        case .year:
+            startDate = calendar.date(from: calendar.dateComponents([.year], from: weekStartDate))!
+            dateComponents.year = 1
+            dateComponents.day = -1
+        }
+        
+        endDate = calendar.date(byAdding: dateComponents, to: startDate)!
+        var routesByDate = [Date: Int]()
+        var currentDate = startDate
+        while currentDate <= endDate {
+            routesByDate[currentDate] = 0
+            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
+        }
+        let groupedRoutes = Dictionary(grouping: climbingRoutesData.testable) { route in
+            calendar.startOfDay(for: route.date)
+        }
+        for (date, routes) in groupedRoutes {
+            if let _ = routesByDate[date] {
+                routesByDate[date] = routes.count
+            }
+        }
+        return routesByDate
+    }
+    
+    private func updateChartForSelectedTimeRange() {
+        let calendar = Calendar.current
+        
+        switch timeRange {
+        case .week:
+            break
+        case .month:
+            weekStartDate = calendar.date(from: calendar.dateComponents([.year, .month], from: weekStartDate))!
+        case .sixMonths, .year:
+            weekStartDate = calendar.date(from: calendar.dateComponents([.year, .month], from: weekStartDate))!
+        }
     }
     
 }
