@@ -20,6 +20,7 @@ struct TimelineChartView: View {
     @ObservedObject var climbingRoutesData: ClimbingRoutesData
     @State private var weekStartDate: Date
     @State private var timeRange: TimeRange = .week
+    @State private var showDateLabel: Bool = true
     
     init(climbingRoutesData: ClimbingRoutesData) {
         self.climbingRoutesData = climbingRoutesData
@@ -100,6 +101,7 @@ struct TimelineChartView: View {
                         .foregroundStyle(by: .value("Date", date))
                     }
                 }
+                .chartXAxis(showDateLabel ? Visibility.visible : Visibility.hidden)
                 // TODO: add colors for chart
                 .gesture (
                     DragGesture(minimumDistance: 0, coordinateSpace: .local)
@@ -130,6 +132,15 @@ struct TimelineChartView: View {
                     AxisMarks(values: .automatic(desiredCount: 3))
                 }
                 .padding()
+            }
+            .onChange(of: weekStartDate) {
+                self.showDateLabel = false
+
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    withAnimation(.easeInOut(duration: 0.3)) {
+                        self.showDateLabel = true
+                    }
+                }
             }
             .animation(.easeInOut(duration: 0.6), value: weekStartDate)
         }
