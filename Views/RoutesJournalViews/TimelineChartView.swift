@@ -38,6 +38,7 @@ struct TimelineChartView: View {
         GeometryReader { geometry in
             VStack {
                 // TODO: make picker work
+                // TODO: Adjust scroll https://developer.apple.com/videos/play/wwdc2023/10037/?time=262
                 Picker("TimeRange", selection: $timeRange) {
                     ForEach(TimeRange.allCases) { timeRange in
                         Text(timeRange.description.capitalized)

@@ -6,13 +6,23 @@ struct DatePickerSection: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            DatePicker("From – to", selection: $startDate, in: ...endDate, displayedComponents: .date)
+            DatePicker(
+                "From – to",
+                selection: $startDate,
+                in: ...endDate,
+                displayedComponents: .date
+            )
                 .padding(.leading)
-            DatePicker("", selection: $endDate, in: startDate..., displayedComponents: .date)
+            DatePicker(
+                "",
+                selection: $endDate,
+                in: startDate...Constants.dateRange.upperBound,
+                displayedComponents: .date
+            )
                 .labelsHidden()
                 .padding(.trailing)
         }
-        .padding(.top, 30)
+        .padding(.top)
     }
 }
 
