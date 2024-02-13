@@ -1,15 +1,18 @@
 import SwiftUI
 import Charts
+import SwiftData
 
 struct RoutesPieChartView: View {
-    @ObservedObject var climbingRoutesData: ClimbingRoutesData
+    @Environment(\.modelContext) var context
+    @Query private var routes: [ClimbingRoute]
+
     @Binding var showOnlySucceeded: Bool
     @Binding var startDate: Date
     @Binding var endDate: Date
     @State private var animate = false
 
     private var routesByDifficulty: [RoutesByColor] {
-        let filteredRoutes = showOnlySucceeded ? climbingRoutesData.climbingRoutes.filter { $0.succeeded } : climbingRoutesData.climbingRoutes
+        let filteredRoutes = showOnlySucceeded ? routes.filter { $0.succeeded } : routes
         let grouped = Dictionary(grouping: filteredRoutes.filter { route in
             return route.date.isBetween(
                 startDate: startDate,
@@ -50,5 +53,5 @@ struct RoutesPieChartView: View {
 
 
 #Preview {
-    RoutesPieChartView(climbingRoutesData: .init(), showOnlySucceeded: .constant(true), startDate: .constant(.now), endDate: .constant(.now))
+    RoutesPieChartView(showOnlySucceeded: .constant(true), startDate: .constant(.now), endDate: .constant(.now))
 }

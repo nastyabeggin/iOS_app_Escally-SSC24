@@ -4,12 +4,13 @@ import Charts
 struct RoutesChartBarView: View {
     @Binding var selectedRouteRange: [RouteByDate]
     @Binding var selectedTimeRange: [Date]
+    @Binding var allRoutesData: [RouteByDate]
+
     @State private var scrollPosition = Date().startOfWeek()
     @State private var selectedDate: Date? = nil
     @State private var visibleDomain = 3600 * 24 * 7
     @State private var xAxisStride: Calendar.Component = .day
     @State private var totalRoutes: Int = 0
-    var allRoutesData: [RouteByDate]
     var timeRange: TimeRange
     
     var body: some View {

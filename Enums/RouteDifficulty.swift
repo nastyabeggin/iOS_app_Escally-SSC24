@@ -1,6 +1,7 @@
 import SwiftUI
 
-enum RouteDifficulty: String, CaseIterable, Identifiable {
+
+enum RouteDifficulty: String, CaseIterable, Identifiable, Codable {
     case yellow = "Yellow"
     case green = "Green"
     case blue = "Blue"

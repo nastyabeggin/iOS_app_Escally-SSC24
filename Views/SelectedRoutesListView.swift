@@ -1,58 +1,80 @@
 import SwiftUI
+import SwiftData
 
 struct SelectedRoutesListView: View {
-    @ObservedObject var climbingRoutesData: ClimbingRoutesData
+    @Environment(\.modelContext) var context
+    @Query private var routes: [ClimbingRoute]
+
     @State var isDeleteAlertPresented = false
-    @State private var routeIndexToDelete: Int?
     @State private var searchQuery = ""
+    @State private var routeToDelete: ClimbingRoute?
+    
     var showOnlySucceeded: Bool
     var startDate: Date
     var endDate: Date
     
-    var filteredIndices: [Int] {
-        climbingRoutesData.climbingRoutes.enumerated().compactMap { index, route in
-            ((showOnlySucceeded ? route.succeeded : true) &&
-             route.date.isBetween(startDate: startDate, endDate: endDate)) &&
-            searchQuery.isEmpty || route.name.localizedCaseInsensitiveContains(searchQuery) ? index : nil
+    private var filteredRoutes: [ClimbingRoute] {
+        routes.filter { route in
+            let matchesSucceededFilter = showOnlySucceeded ? route.succeeded : true
+            let matchesDateRange = route.date.isBetween(startDate: startDate, endDate: endDate)
+            let nameContainsQuery = route.name.range(
+                of: searchQuery,
+                options: .caseInsensitive) != nil
+            let difficultyContainsQuery = route.difficulty.rawValue.range(
+                of: searchQuery,
+                options: .caseInsensitive) != nil
+            let matchesSearchQuery = searchQuery.isEmpty || nameContainsQuery || difficultyContainsQuery
+            
+            return matchesSucceededFilter && matchesDateRange && matchesSearchQuery
         }
     }
+
     
     var body: some View {
         List {
-            ForEach(filteredIndices, id: \.self) { index in
-                let route = $climbingRoutesData.sortedRoutes[index]
+            ForEach(filteredRoutes, id: \.self) { route in
                 NavigationLink {
                     ClimbingRouteDetailView(
-                        viewModel: ClimbingRouteViewModel(
-                            climbingRoutesData: climbingRoutesData,
-                            climbingRoute: route)
+                        viewModel: ClimbingRouteViewModel(climbingRoute: route)
                     )} label: {
                         ClimbingRouteRow(route: route)
+                            .swipeActions {
+                                Button {
+                                    isDeleteAlertPresented = true
+                                    routeToDelete = route
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                        .symbolVariant(.fill)
+                                }
+                                .tint(.red)
+                            }
                     }
             }
-            .onDelete(perform: deleteRoute)
         }
+        .animation(.default, value: filteredRoutes)
         .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Routes")
+        .overlay {
+            if filteredRoutes.isEmpty && !searchQuery.isEmpty {
+                ContentUnavailableView.search
+            }
+        }
         .navigationTitle("Selected Routes")
         .alert(isPresented: $isDeleteAlertPresented) {
             Alert(
                 title: Text("Confirm Delete"),
                 message: Text("Are you sure you want to delete this note?"),
                 primaryButton: .destructive(Text("Delete")) {
-                    withAnimation {
-                        guard let index = routeIndexToDelete else { return }
-                        climbingRoutesData.climbingRoutes.remove(at: index)
-                        isDeleteAlertPresented = false
-                    }
+                    deleteRoute()
                 },
                 secondaryButton: .cancel()
             )
         }
     }
     
-    private func deleteRoute(at offsets: IndexSet) {
-        guard let index = offsets.first else { return }
-        routeIndexToDelete = index
-        isDeleteAlertPresented = true
+    private func deleteRoute() {
+        guard let routeToDelete = routeToDelete else { return }
+        context.delete(routeToDelete)
+        try? context.save()
+        self.routeToDelete = nil
     }
 }

@@ -2,9 +2,10 @@ import SwiftUI
 import PhotosUI
 
 struct ClimbingRouteDetailView: View {
+    @Environment(\.presentationMode) var presentationMode
+
     @ObservedObject var viewModel: ClimbingRouteViewModel
     @State private var isEditing: Bool = false
-    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         Form {
@@ -13,7 +14,7 @@ struct ClimbingRouteDetailView: View {
                     isEditing: $isEditing,
                     imageState: $viewModel.imageState,
                     selectedPickerItem: $viewModel.selectedPickerItem,
-                    image: viewModel.selectedRoute.image
+                    imageData: viewModel.selectedRoute.image
                 )
             }
             Group {
@@ -47,7 +48,7 @@ struct ClimbingRouteDetailView: View {
         .toolbar { toolbarContent }
         .alert(isPresented: $viewModel.showConfirmationDialog, content: confirmationAlert)
     }
-
+    
     private var toolbarContent: some ToolbarContent {
         Group {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -75,7 +76,7 @@ struct ClimbingRouteDetailView: View {
             }
         }
     }
-
+    
     private func backButtonAction() {
         if isEditing {
             viewModel.showConfirmationDialog = true
@@ -88,11 +89,11 @@ struct ClimbingRouteDetailView: View {
         if isEditing {
             saveUpdatedRoute()
         } else {
-            viewModel.draftRoute = viewModel.selectedRoute
+            viewModel.draftRoute = viewModel.selectedRoute.copy()
         }
         isEditing.toggle()
     }
-
+    
     private func confirmationAlert() -> Alert {
         Alert(
             title: Text("Unsaved Changes"),
@@ -104,7 +105,7 @@ struct ClimbingRouteDetailView: View {
             secondaryButton: .cancel(Text("Discard"), action: navigateBack)
         )
     }
-
+    
     private func navigateBack() {
         presentationMode.wrappedValue.dismiss()
     }

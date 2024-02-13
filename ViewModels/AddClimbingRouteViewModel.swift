@@ -1,8 +1,8 @@
 import SwiftUI
+import SwiftData
 import PhotosUI
 
 class AddClimbingRouteViewModel: ObservableObject {
-    @State var climbingRoutesData: ClimbingRoutesData
     @Published var name: String = ""
     @Published var difficulty: RouteDifficulty = .yellow
     @Published var imageState: ImageState = .empty
@@ -20,30 +20,25 @@ class AddClimbingRouteViewModel: ObservableObject {
         }
     }
     
-    init(climbingRoutesData: ClimbingRoutesData) {
-        self.climbingRoutesData = climbingRoutesData
-    }
-    
-    func saveRoute() {
-        let routeImage: Image? = {
-            if case .success(let image) = imageState {
-                return image
+    func saveRoute(context: ModelContext) {
+        let routeImageData: Data? = {
+            if case .success(let imageData) = imageState {
+                return imageData
             } else {
                 return nil
             }
         }()
-        
+
         let newRoute = ClimbingRoute(
             name: name,
             difficulty: difficulty,
-            image: routeImage,
+            image: routeImageData,
             date: date,
             succeeded: succeeded,
             flashed: flashed,
             notes: notes
         )
-        
-        climbingRoutesData.climbingRoutes.append(newRoute)
+        context.insert(newRoute)
     }
     
     func removeSelectedImage() {
@@ -56,8 +51,8 @@ class AddClimbingRouteViewModel: ObservableObject {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let data):
-                    if let data = data, let uiImage = UIImage(data: data) {
-                        self?.imageState = .success(Image(uiImage: uiImage))
+                    if let data = data {
+                        self?.imageState = .success(data)
                     } else {
                         self?.imageState = .failure(TransferError.importFailed)
                     }

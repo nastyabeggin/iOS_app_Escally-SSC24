@@ -1,35 +1,61 @@
 import SwiftUI
+import SwiftData
 
 struct ClimbingRoutesListView: View {
-    @ObservedObject var climbingRoutesData: ClimbingRoutesData
+    @Environment(\.modelContext) var context
+    @Query private var routes: [ClimbingRoute]
+    
     @State private var showingAddRouteView = false
     @State var isDeleteAlertPresented = false
-    @State private var routeIndexToDelete: Int?
+    @State var selectedSortOption: SortOption = .byDate
+    @State private var routeToDelete: ClimbingRoute?
     @State private var searchQuery = ""
     
-    var filteredIndices: [Int] {
-        climbingRoutesData.sortedRoutes.enumerated().compactMap { index, route in
-            searchQuery.isEmpty || route.name.localizedCaseInsensitiveContains(searchQuery) ? index : nil
+    
+    private var filteredRoutes: [ClimbingRoute] {
+        if searchQuery.isEmpty {
+            return routes.sort(on: selectedSortOption)
         }
+        let filteredRoutes = routes.compactMap { route in
+            let nameContainsQuery = route.name.range(
+                of: searchQuery,
+                options: .caseInsensitive) != nil
+            let difficultyContainsQuery = route.difficulty.rawValue.range(
+                of: searchQuery,
+                options: .caseInsensitive) != nil
+            return (nameContainsQuery || difficultyContainsQuery) ? route : nil
+        }
+        return filteredRoutes.sort(on: selectedSortOption)
     }
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(filteredIndices, id: \.self) { index in
-                    let route = $climbingRoutesData.sortedRoutes[index]
+                ForEach(filteredRoutes, id: \.self) { route in
                     NavigationLink {
                         ClimbingRouteDetailView(
-                            viewModel: ClimbingRouteViewModel(
-                                climbingRoutesData: climbingRoutesData,
-                                climbingRoute: route)
-                        )} label: {
-                            ClimbingRouteRow(route: route)
-                        }
+                            viewModel: ClimbingRouteViewModel(climbingRoute: route))
+                    } label: {
+                        ClimbingRouteRow(route: route)
+                            .swipeActions {
+                                Button {
+                                    isDeleteAlertPresented = true
+                                    routeToDelete = route
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                        .symbolVariant(.fill)
+                                }
+                                .tint(.red)
+                            }
+                    }
                 }
-                .onDelete(perform: deleteRoute)
             }
             .searchable(text: $searchQuery, prompt: "Search Routes")
+            .overlay {
+                if filteredRoutes.isEmpty && !searchQuery.isEmpty {
+                    ContentUnavailableView.search
+                }
+            }
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     toolbarMenu
@@ -37,20 +63,17 @@ struct ClimbingRoutesListView: View {
             }
             .navigationTitle("Climbing Routes")
         }
+        .animation(.default, value: filteredRoutes)
         .navigationViewStyle(StackNavigationViewStyle())
         .sheet(isPresented: $showingAddRouteView) {
-            AddClimbingRouteView(viewModel: AddClimbingRouteViewModel(climbingRoutesData: climbingRoutesData))
+            AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
         }
         .alert(isPresented: $isDeleteAlertPresented) {
             Alert(
                 title: Text("Confirm Delete"),
-                message: Text("Are you sure you want to delete this note?"),
+                message: Text("Are you sure you want to delete this route?"),
                 primaryButton: .destructive(Text("Delete")) {
-                    withAnimation {
-                        guard let index = routeIndexToDelete else { return }
-                        climbingRoutesData.climbingRoutes.remove(at: index)
-                        isDeleteAlertPresented = false
-                    }
+                    deleteRoute()
                 },
                 secondaryButton: .cancel()
             )
@@ -60,7 +83,7 @@ struct ClimbingRoutesListView: View {
     private var toolbarMenu: some View {
         Menu {
             Menu {
-                Picker(selection: $climbingRoutesData.selectedSortOption, label: Text("Sorting options")) {
+                Picker(selection: $selectedSortOption, label: Text("Sorting options")) {
                     Text("Date").tag(SortOption.byDate)
                     Text("Name").tag(SortOption.byName)
                     Text("Difficulty").tag(SortOption.byDifficulty)
@@ -78,13 +101,30 @@ struct ClimbingRoutesListView: View {
         }
     }
     
-    private func deleteRoute(at offsets: IndexSet) {
-        guard let index = offsets.first else { return }
-        routeIndexToDelete = index
-        isDeleteAlertPresented = true
+    private func deleteRoute() {
+        guard let routeToDelete = routeToDelete else { return }
+        context.delete(routeToDelete)
+        try? context.save()
+        self.routeToDelete = nil
     }
 }
 
 #Preview {
-    ClimbingRoutesListView(climbingRoutesData: .init())
+    ClimbingRoutesListView()
+        .modelContainer(for: ClimbingRoute.self)
+}
+
+private extension [ClimbingRoute] {
+    func sort(on option: SortOption) -> [ClimbingRoute] {
+        switch option {
+        case .byName:
+            self.sorted(by: { $0.name < $1.name })
+        case .byDate:
+            self.sorted(by: { $0.date < $1.date })
+        case .byDifficulty:
+            self.sorted(by: { $0.difficulty.rawValue < $1.difficulty.rawValue })
+        case .bySuccess:
+            self.sorted(by: { $0.succeeded && !$1.succeeded })
+        }
+    }
 }

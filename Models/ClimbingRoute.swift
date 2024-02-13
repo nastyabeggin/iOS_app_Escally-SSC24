@@ -1,8 +1,10 @@
 import Foundation
 import PhotosUI
 import SwiftUI
+import SwiftData
 
-struct ClimbingRoute: Identifiable {
+@Model
+class ClimbingRoute: Identifiable {
     let id: UUID
     var name: String
     var difficulty: RouteDifficulty
@@ -14,12 +16,12 @@ struct ClimbingRoute: Identifiable {
     }
     var flashed: Bool
     var notes: String
-    var image: Image?
-    
+    var image: Data?
+
     init(id: UUID = UUID(),
          name: String,
          difficulty: RouteDifficulty,
-         image: Image? = nil,
+         image: Data? = nil,
          date: Date,
          succeeded: Bool,
          flashed: Bool,
@@ -33,6 +35,30 @@ struct ClimbingRoute: Identifiable {
         self.succeeded = succeeded
         self.flashed = flashed
         self.notes = notes
+    }
+
+    func copy() -> ClimbingRoute {
+        let climbingRoute = ClimbingRoute(
+            id: id,
+            name: name,
+            difficulty: difficulty,
+            image: image,
+            date: date,
+            succeeded: succeeded,
+            flashed: flashed,
+            notes: notes
+        )
+        return climbingRoute
+    }
+
+    func update(from draft: ClimbingRoute) {
+        name = draft.name
+        image = draft.image
+        date = draft.date
+        difficulty = draft.difficulty
+        flashed = draft.flashed
+        succeeded = draft.succeeded
+        notes = draft.notes
     }
 }
 

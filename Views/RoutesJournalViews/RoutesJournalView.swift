@@ -1,22 +1,23 @@
 import SwiftUI
 import Charts
+import SwiftData
 
 struct RoutesJournalView: View {
-    @ObservedObject var climbingRoutesData: ClimbingRoutesData
+    @Environment(\.modelContext) var context
+    @Query private var routes: [ClimbingRoute]
+    
     @State var selectedRouteRange: [RouteByDate] = []
-    @State var selectedTimeRange: [Date] = []
+    @State var selectedTimeRange: [Date] = [Date().startOfWeek(), Calendar.current.date(byAdding: DateComponents(day: 6), to: Date().startOfWeek())!]
     @State var averageRouteNumber: Int = 0
     @State private var timeRange: TimeRange = .week
     @State private var allRoutesData: [RouteByDate] = []
-    
-    init(climbingRoutesData: ClimbingRoutesData) {
-        self.climbingRoutesData = climbingRoutesData
-        self._allRoutesData = State(initialValue: self.calculateData())
-        self._selectedRouteRange = State(initialValue: self.calculateInitialRange())
-        self._selectedTimeRange = State(initialValue: self.calculateInitialTimeRange())
-        self._averageRouteNumber = State(initialValue: self.calculateAverageRouteNumber())
+    private var filteredRoutes: [ClimbingRoute] {
+        let filteredRoutes = routes.compactMap { route in
+            route
+        }
+        return filteredRoutes
     }
-    
+
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
@@ -25,17 +26,21 @@ struct RoutesJournalView: View {
                         .padding(.horizontal)
                     JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber)
                         .padding()
-                    RoutesChartBarView(selectedRouteRange: $selectedRouteRange, selectedTimeRange: $selectedTimeRange, allRoutesData: allRoutesData, timeRange: timeRange)
+                    RoutesChartBarView(selectedRouteRange: $selectedRouteRange, selectedTimeRange: $selectedTimeRange, allRoutesData: $allRoutesData, timeRange: timeRange)
                         .frame(height: geometry.size.height / 3)
                         .padding()
                         .onChange(of: selectedTimeRange) {
-                            DispatchQueue.main.async {
-                                self.averageRouteNumber = self.calculateAverageRouteNumber()
-                            }
+                            averageRouteNumber = calculateAverageRouteNumber()
                         }
                 }
             }
             .navigationTitle("Routes Journal")
+        }
+        .onAppear {
+            allRoutesData = calculateData()
+            selectedRouteRange = calculateInitialRange()
+            selectedTimeRange = calculateInitialTimeRange()
+            averageRouteNumber = calculateAverageRouteNumber()
         }
     }
     
@@ -66,7 +71,7 @@ struct RoutesJournalView: View {
             routesByDate.append(RouteByDate(count: 0, date: currentDate))
             currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
         }
-        let groupedRoutes = Dictionary(grouping: climbingRoutesData.testable) { route in
+        let groupedRoutes = Dictionary(grouping: filteredRoutes) { route in
             calendar.startOfDay(for: route.date)
         }
         for (date, routes) in groupedRoutes {
@@ -81,7 +86,7 @@ struct RoutesJournalView: View {
     private func calculateData() -> [RouteByDate] {
         let calendar = Calendar.current
         var dateComponents = DateComponents()
-        let startDate: Date = climbingRoutesData.testable
+        let startDate: Date = filteredRoutes
             .map { $0.date }
             .sorted()
             .min() ?? calendar.date(byAdding: .month, value: -6, to: Date())!
@@ -96,7 +101,7 @@ struct RoutesJournalView: View {
             routesByDate.append(RouteByDate(count: 0, date: currentDate))
             currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
         }
-        let groupedRoutes = Dictionary(grouping: climbingRoutesData.testable) { route in
+        let groupedRoutes = Dictionary(grouping: filteredRoutes) { route in
             calendar.startOfDay(for: route.date)
         }
         for (date, routes) in groupedRoutes {
@@ -107,9 +112,4 @@ struct RoutesJournalView: View {
         }
         return routesByDate
     }
-}
-
-
-#Preview {
-    RoutesJournalView(climbingRoutesData: ClimbingRoutesData())
 }

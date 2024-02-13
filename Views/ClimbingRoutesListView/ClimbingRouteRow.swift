@@ -1,16 +1,18 @@
 import SwiftUI
 
 struct ClimbingRouteRow: View {
-    @Binding var route: ClimbingRoute
+    @State var route: ClimbingRoute
 
     var body: some View {
         HStack {
-            route.image?
-                .resizable()
-                .scaledToFill()
-                .frame(width: 60, height: 50)
-                .clipShape(RoundedRectangle(cornerRadius: 5))
-                .padding(.trailing, 8)
+            if let image = route.image, let uiImage = UIImage(data: image) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 5))
+                    .padding(.trailing, 8)
+            }
             VStack(alignment: .leading) {
                     Text(route.name)
                         .font(.headline)
@@ -25,8 +27,4 @@ struct ClimbingRouteRow: View {
             }
         }
     }
-}
-
-#Preview {
-    ClimbingRouteRow(route: .constant(ClimbingRoute(id: UUID(), name: "Test name", difficulty: .red, image: Image(systemName: "mic"), date: .now, succeeded: true, flashed: false, notes: "No notes")))
 }

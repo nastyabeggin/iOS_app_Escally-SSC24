@@ -1,9 +1,9 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct MyApp: App {
     @State var showWelcome = false
-    @StateObject var climbingRoutesData = ClimbingRoutesData()
 
     var body: some Scene {
         WindowGroup {
@@ -12,16 +12,16 @@ struct MyApp: App {
             } else {
                 TabView {
                     Group {
-                        ClimbingRoutesListView(climbingRoutesData: climbingRoutesData)
+                        ClimbingRoutesListView()
                             .tabItem {
                                 Label("Routes", systemImage: "mountain.2")
                             }
-                        RoutesJournalView(climbingRoutesData: climbingRoutesData)
+                        RoutesJournalView()
                             .tabItem {
                                 Label("Journal",
                                       systemImage: "chart.bar.fill")
                             }
-                        ChartsView(climbingRoutesData: climbingRoutesData)
+                        ChartsView()
                             .tabItem {
                                 Label("Charts",
                                       systemImage: "chart.pie.fill")
@@ -30,5 +30,6 @@ struct MyApp: App {
                 }
             }
         }
+        .modelContainer(for: ClimbingRoute.self)
     }
 }

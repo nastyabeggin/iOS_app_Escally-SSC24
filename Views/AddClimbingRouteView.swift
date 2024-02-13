@@ -4,6 +4,7 @@ import PhotosUI
 struct AddClimbingRouteView: View {
     @ObservedObject var viewModel: AddClimbingRouteViewModel
     @Environment(\.presentationMode) var presentationMode
+    @Environment(\.modelContext) var context
     
     var body: some View {
         NavigationView {
@@ -27,7 +28,7 @@ struct AddClimbingRouteView: View {
             .navigationBarItems(leading: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {
-                viewModel.saveRoute()
+                viewModel.saveRoute(context: context)
                 presentationMode.wrappedValue.dismiss()
             })
         }
@@ -36,7 +37,7 @@ struct AddClimbingRouteView: View {
 
 struct AddClimbingRouteView_Previews: PreviewProvider {
     static var previews: some View {
-        AddClimbingRouteView(viewModel: AddClimbingRouteViewModel(climbingRoutesData: .init()))
+        AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
     }
 }
 
