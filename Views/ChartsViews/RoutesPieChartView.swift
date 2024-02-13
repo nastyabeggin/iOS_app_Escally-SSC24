@@ -11,10 +11,9 @@ struct RoutesPieChartView: View {
     private var routesByDifficulty: [RoutesByColor] {
         let filteredRoutes = showOnlySucceeded ? climbingRoutesData.climbingRoutes.filter { $0.succeeded } : climbingRoutesData.climbingRoutes
         let grouped = Dictionary(grouping: filteredRoutes.filter { route in
-            return DateTimeHelper.isRouteBetween(
+            return route.date.isBetween(
                 startDate: startDate,
-                endDate: endDate,
-                climbingRouteDate: route.date
+                endDate: endDate
             )
         }, by: { $0.difficulty })
         return grouped.sorted { $0.key.rawValue > $1.key.rawValue }.map { RoutesByColor(difficulty: $0.key, count: $0.value.count) }

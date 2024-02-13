@@ -12,7 +12,7 @@ struct SelectedRoutesListView: View {
     var filteredIndices: [Int] {
         climbingRoutesData.climbingRoutes.enumerated().compactMap { index, route in
             ((showOnlySucceeded ? route.succeeded : true) &&
-             DateTimeHelper.isRouteBetween(startDate: startDate, endDate: endDate, climbingRouteDate: route.date)) &&
+             route.date.isBetween(startDate: startDate, endDate: endDate)) &&
             searchQuery.isEmpty || route.name.localizedCaseInsensitiveContains(searchQuery) ? index : nil
         }
     }

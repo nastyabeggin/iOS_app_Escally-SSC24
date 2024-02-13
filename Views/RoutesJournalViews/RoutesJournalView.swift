@@ -18,21 +18,24 @@ struct RoutesJournalView: View {
     }
     
     var body: some View {
-        GeometryReader { geometry in
-            VStack {
-                TimeRangePicker(timeRange: $timeRange)
-                    .padding(.horizontal)
-                JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber)
-                    .padding()
-                RoutesChartBarView(selectedRange: $selectedRouteRange, selectedTimeRange: $selectedTimeRange, allRoutesData: allRoutesData, timeRange: timeRange)
-                    .frame(height: geometry.size.height / 3)
-                    .padding()
-                    .onChange(of: selectedTimeRange) {
-                        DispatchQueue.main.async {
-                            self.averageRouteNumber = self.calculateAverageRouteNumber()
+        NavigationView {
+            GeometryReader { geometry in
+                VStack {
+                    TimeRangePicker(timeRange: $timeRange)
+                        .padding(.horizontal)
+                    JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber)
+                        .padding()
+                    RoutesChartBarView(selectedRouteRange: $selectedRouteRange, selectedTimeRange: $selectedTimeRange, allRoutesData: allRoutesData, timeRange: timeRange)
+                        .frame(height: geometry.size.height / 3)
+                        .padding()
+                        .onChange(of: selectedTimeRange) {
+                            DispatchQueue.main.async {
+                                self.averageRouteNumber = self.calculateAverageRouteNumber()
+                            }
                         }
-                    }
+                }
             }
+            .navigationTitle("Routes Journal")
         }
     }
     
@@ -48,14 +51,14 @@ struct RoutesJournalView: View {
     
     private func calculateInitialTimeRange() -> [Date] {
         let calendar = Calendar.current
-        let startDate = DateTimeHelper.getMondayOnCurrentWeek()
+        let startDate = Date().startOfWeek()
         let endDate = calendar.date(byAdding: DateComponents(day: 6), to: startDate)!
         return [startDate, endDate]
     }
     
     private func calculateInitialRange() -> [RouteByDate] {
         let calendar = Calendar.current
-        let startDate = DateTimeHelper.getMondayOnCurrentWeek()
+        let startDate = Date().startOfWeek()
         let endDate = calendar.date(byAdding: DateComponents(day: 6), to: startDate)!
         var currentDate = startDate
         var routesByDate = [RouteByDate]()
@@ -76,7 +79,6 @@ struct RoutesJournalView: View {
     }
     
     private func calculateData() -> [RouteByDate] {
-        // TODO: calculate for different time ranges
         let calendar = Calendar.current
         var dateComponents = DateComponents()
         let startDate: Date = climbingRoutesData.testable
@@ -89,7 +91,7 @@ struct RoutesJournalView: View {
         dateComponents.day = -1
         endDate = calendar.date(byAdding: dateComponents, to: Date())!
         var routesByDate = [RouteByDate]()
-        var currentDate = startDate
+        var currentDate = calendar.startOfDay(for: startDate)
         while currentDate <= endDate {
             routesByDate.append(RouteByDate(count: 0, date: currentDate))
             currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!

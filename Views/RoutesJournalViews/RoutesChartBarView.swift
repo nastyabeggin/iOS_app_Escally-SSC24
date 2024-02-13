@@ -2,12 +2,13 @@ import SwiftUI
 import Charts
 
 struct RoutesChartBarView: View {
-    @Binding var selectedRange: [RouteByDate]
+    @Binding var selectedRouteRange: [RouteByDate]
     @Binding var selectedTimeRange: [Date]
-    @State private var scrollPosition = DateTimeHelper.getMondayOnCurrentWeek()
+    @State private var scrollPosition = Date().startOfWeek()
     @State private var selectedDate: Date? = nil
     @State private var visibleDomain = 3600 * 24 * 7
     @State private var xAxisStride: Calendar.Component = .day
+    @State private var totalRoutes: Int = 0
     var allRoutesData: [RouteByDate]
     var timeRange: TimeRange
     
@@ -24,12 +25,12 @@ struct RoutesChartBarView: View {
                     x: .value("Selected", selectedDate, unit: xAxisStride)
                 )
                 .foregroundStyle(Color.gray.opacity(0.3))
+                .zIndex(0)
                 .annotation(
-                    position: .topLeading,
+                    position: .top,
                     spacing: 0,
                     overflowResolution: .init(x: .fit(to: .chart), y: .fit(to: .chart))) {
-                        // TODO: annotation
-                        Text("test")
+                        annotationView(for: selectedDate)
                     }
                     .zIndex(1)
             }
@@ -41,7 +42,7 @@ struct RoutesChartBarView: View {
             .valueAligned(matching: DateComponents(weekday: 2)))
         .chartXAxis {
             AxisMarks(values: getXAxisValues()) {
-                AxisValueLabel(format: getXAxisLabelFormat(), centered: true)
+                AxisValueLabel(format: getXAxisLabelFormat())
                 AxisGridLine()
                 AxisTick()
             }
@@ -54,6 +55,9 @@ struct RoutesChartBarView: View {
             visibleDomain = getVisibleDomain()
             xAxisStride = getXAxisStride()
         }
+        .onChange(of: selectedDate) {
+            updateTotalRoutes()
+        }
         .chartScrollableAxes(.horizontal)
         .animation(.default, value: timeRange)
     }
@@ -62,11 +66,16 @@ struct RoutesChartBarView: View {
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: date)
         let startDatePlusDay = calendar.date(byAdding: .day, value: 1, to: startDate) ?? startDate
-        guard let endDate = DateTimeHelper.getTimeInterval(startDate: startDatePlusDay, interval: timeRange) else { return }
-        selectedTimeRange = [startDatePlusDay, endDate]
-        
-        selectedRange = allRoutesData.filter { route in
-            DateTimeHelper.isRouteBetween(startDate: startDatePlusDay, endDate: endDate, climbingRouteDate: route.date)
+        guard let endDate = startDatePlusDay.addingTimeInterval(timeRange) else { return }
+        DispatchQueue.global(qos: .userInitiated).async {
+            let filteredRoutes = self.allRoutesData.filter { route in
+                route.date.isBetween(startDate: startDatePlusDay, endDate: endDate)
+            }
+            
+            DispatchQueue.main.async {
+                self.selectedTimeRange = [startDatePlusDay, endDate]
+                self.selectedRouteRange = filteredRoutes
+            }
         }
     }
     
@@ -120,5 +129,41 @@ struct RoutesChartBarView: View {
         case .year:
             return .dateTime.month(.abbreviated)
         }
+    }
+    
+    private func updateTotalRoutes() {
+        guard let selectedDate = selectedDate else {
+            DispatchQueue.main.async {
+                totalRoutes = 0
+            }
+            return
+        }
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let newTotalRoutes: Int
+            switch timeRange {
+            case .sixMonths:
+                let startOfWeek = selectedDate.startOfWeek(using: .current)
+                let endOfWeek = Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)!
+                newTotalRoutes = allRoutesData
+                    .filter { $0.date >= startOfWeek && $0.date <= endOfWeek }
+                    .reduce(0) { $0 + $1.count }
+            case .year:
+                newTotalRoutes = allRoutesData
+                    .filter { Calendar.current.isDate($0.date, equalTo: selectedDate, toGranularity: .month) }
+                    .reduce(0) { $0 + $1.count }
+            default:
+                newTotalRoutes = allRoutesData
+                    .filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+                    .reduce(0) { $0 + $1.count }
+            }
+            DispatchQueue.main.async {
+                self.totalRoutes = newTotalRoutes
+            }
+        }
+    }
+    
+    private func annotationView(for date: Date) -> some View {
+        AnnotationView(totalRoutes: totalRoutes, date: date, timeRange: timeRange)
     }
 }

@@ -26,7 +26,7 @@ struct JournalTextView: View {
                 Spacer()
             }
             HStack {
-                Text(DateTimeHelper.getTimeRangeString(startDate: selectedTimeRange[0], endDate: selectedTimeRange[1]))
+                Text(selectedTimeRange[0].timeRangeString(to: selectedTimeRange[1]))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(alignment: .leading)
