@@ -16,6 +16,11 @@ struct MyApp: App {
                             .tabItem {
                                 Label("Routes", systemImage: "mountain.2")
                             }
+                        RoutesJournalView(climbingRoutesData: climbingRoutesData)
+                            .tabItem {
+                                Label("Journal",
+                                      systemImage: "chart.bar.fill")
+                            }
                         ChartsView(climbingRoutesData: climbingRoutesData)
                             .tabItem {
                                 Label("Charts",

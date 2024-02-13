@@ -10,11 +10,9 @@ struct SelectedRoutesListView: View {
     var endDate: Date
     
     var filteredIndices: [Int] {
-        // TODO: Add helper with time and date
         climbingRoutesData.climbingRoutes.enumerated().compactMap { index, route in
             ((showOnlySucceeded ? route.succeeded : true) &&
-             route.date >= startDate &&
-             route.date <= endDate) &&
+             DateTimeHelper.isRouteBetween(startDate: startDate, endDate: endDate, climbingRouteDate: route.date)) &&
             searchQuery.isEmpty || route.name.localizedCaseInsensitiveContains(searchQuery) ? index : nil
         }
     }

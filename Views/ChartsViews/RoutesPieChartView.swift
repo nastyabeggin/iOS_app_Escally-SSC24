@@ -9,14 +9,13 @@ struct RoutesPieChartView: View {
     @State private var animate = false
 
     private var routesByDifficulty: [RoutesByColor] {
-        // TODO: Add helper with time and date
         let filteredRoutes = showOnlySucceeded ? climbingRoutesData.climbingRoutes.filter { $0.succeeded } : climbingRoutesData.climbingRoutes
         let grouped = Dictionary(grouping: filteredRoutes.filter { route in
-            let calendar = Calendar.current
-            let startDay = calendar.startOfDay(for: startDate)
-            let endDay = calendar.startOfDay(for: endDate)
-            let routeDay = calendar.startOfDay(for: route.date)
-            return routeDay >= startDay && routeDay <= endDay
+            return DateTimeHelper.isRouteBetween(
+                startDate: startDate,
+                endDate: endDate,
+                climbingRouteDate: route.date
+            )
         }, by: { $0.difficulty })
         return grouped.sorted { $0.key.rawValue > $1.key.rawValue }.map { RoutesByColor(difficulty: $0.key, count: $0.value.count) }
     }
@@ -29,7 +28,7 @@ struct RoutesPieChartView: View {
         if routesByDifficulty.isEmpty {
             Text("No data")
                 .font(.title)
-                .foregroundColor(.gray)
+                .foregroundStyle(.secondary)
                 .transition(.asymmetric(insertion: .scale.combined(with: .opacity), removal: .opacity))
                 .animation(.easeInOut, value: routesByDifficulty.isEmpty)
         } else {

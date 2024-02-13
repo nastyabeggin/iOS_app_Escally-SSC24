@@ -4,11 +4,16 @@ import Combine
 class ClimbingRoutesData: ObservableObject {
     @Published var climbingRoutes: [ClimbingRoute] = []
     @Published var testable: [ClimbingRoute] = [
-        ClimbingRoute(name: "New", difficulty: .red, date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
+//        ClimbingRoute(name: "New", difficulty: .red, date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
         ClimbingRoute(name: "New", difficulty: .green, date: Calendar.current.date(byAdding: .month, value: -1, to: Date())!, succeeded: false, flashed: true, notes: ""),
         ClimbingRoute(name: "New", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
+        ClimbingRoute(name: "New", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
+        ClimbingRoute(name: "New", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
+        ClimbingRoute(name: "New", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
+        ClimbingRoute(name: "New", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
+        ClimbingRoute(name: "New", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
         ClimbingRoute(name: "New", difficulty: .red, date: Calendar.current.date(byAdding: .weekOfMonth, value: -1, to: Date())!, succeeded: true, flashed: true, notes: ""),
-        ClimbingRoute(name: "New", difficulty: .red, date: Calendar.current.date(byAdding: .year, value: -1, to: Date())!, succeeded: true, flashed: true, notes: "")
+//        ClimbingRoute(name: "New", difficulty: .red, date: Calendar.current.date(byAdding: .year, value: -1, to: Date())!, succeeded: true, flashed: true, notes: "")
         
     ]
     @Published var selectedSortOption: SortOption = .byDate
