@@ -17,7 +17,7 @@ struct RoutesJournalView: View {
         }
         return filteredRoutes
     }
-
+    
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
@@ -30,7 +30,9 @@ struct RoutesJournalView: View {
                         .frame(height: geometry.size.height / 3)
                         .padding()
                         .onChange(of: selectedTimeRange) {
-                            averageRouteNumber = calculateAverageRouteNumber()
+                            DispatchQueue.main.async {
+                                self.averageRouteNumber = self.calculateAverageRouteNumber()
+                            }
                         }
                 }
             }
