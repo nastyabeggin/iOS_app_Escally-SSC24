@@ -4,7 +4,8 @@ struct ImageEditingView: View {
     @Binding var imageData: Data?
     @Environment(\.presentationMode) var presentationMode
     @State private var tapPoints: [CGPoint] = []
-    @State private var shapesVisible = true
+
+    @GestureState private var isPressingDown: Bool = false
     
     var body: some View {
         NavigationView {
@@ -16,14 +17,27 @@ struct ImageEditingView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
                         .simultaneousGesture(
+                            LongPressGesture(minimumDuration: 0.25)
+                                .sequenced(before: LongPressGesture(minimumDuration: .infinity))
+                                .updating($isPressingDown) { value, state, transaction in
+                                    switch value {
+                                    case .second(true, nil):
+                                        state = true
+                                    default: break
+                                    }
+                                }
+                        )
+                        .simultaneousGesture(
                             DragGesture(minimumDistance: 0).onEnded { value in
                                 let tapLocation = value.startLocation
-                                tapPoints.append(tapLocation)
+                                if !isPressingDown {
+                                    tapPoints.append(tapLocation)
+                                }
                             }
                         )
                         .overlay(
                             Group {
-                                if shapesVisible {
+                                if !isPressingDown {
                                     Path { path in
                                         for (index, point) in tapPoints.enumerated() {
                                             if index == 0 {
@@ -37,26 +51,18 @@ struct ImageEditingView: View {
                                     
                                     ForEach(tapPoints.indices, id: \.self) { index in
                                         ZStack {
-                                            Circle()
-                                                .fill(.background)
-                                                .stroke(.primary, lineWidth: 1)
-                                                .frame(width: 30, height: 30)
+                                            Text("✋")
+                                                .font(Font.custom("", size: 40, relativeTo: .title))
                                             Text("\(index + 1)")
-                                                .font(.caption)
-                                                .foregroundColor(.primary)
+                                                .font(.headline)
+                                                .foregroundColor(.black)
+                                                .padding(.trailing, 5)
+                                                .padding(.top, 9)
                                         }
                                         .position(tapPoints[index])
                                     }
                                 }
                             }
-                        )
-                        .simultaneousGesture(
-                            LongPressGesture().onChanged { _ in
-                                shapesVisible = false
-                            }
-                                .onEnded { _ in
-                                    shapesVisible = true
-                                }
                         )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -90,6 +96,7 @@ struct ImageEditingView: View {
     private func clearAll() {
         tapPoints.removeAll()
     }
+    
 }
 
 struct ImageEditingView_Previews: PreviewProvider {
