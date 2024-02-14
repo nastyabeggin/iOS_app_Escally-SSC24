@@ -6,7 +6,8 @@ struct ClimbingRouteDetailView: View {
 
     @ObservedObject var viewModel: ClimbingRouteViewModel
     @State private var isEditing: Bool = false
-    
+    @State private var showingImageEditor = false
+
     var body: some View {
         Form {
             Section {
@@ -16,6 +17,9 @@ struct ClimbingRouteDetailView: View {
                     selectedPickerItem: $viewModel.selectedPickerItem,
                     imageData: viewModel.selectedRoute.image
                 )
+                .onTapGesture {
+                    showingImageEditor = true
+                }
             }
             Group {
                 if isEditing {
@@ -47,6 +51,9 @@ struct ClimbingRouteDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar { toolbarContent }
         .alert(isPresented: $viewModel.showConfirmationDialog, content: confirmationAlert)
+        .sheet(isPresented: $showingImageEditor) {
+            ImageEditingView(imageData: $viewModel.selectedRoute.image)
+        }
     }
     
     private var toolbarContent: some ToolbarContent {
