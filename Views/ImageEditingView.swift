@@ -1,11 +1,18 @@
 import SwiftUI
 
 struct ImageEditingView: View {
+    @Binding var climbingRoute: ClimbingRoute
     @Binding var imageData: Data?
     @Environment(\.presentationMode) var presentationMode
     @State private var tapPoints: [CGPoint] = []
 
     @GestureState private var isPressingDown: Bool = false
+    
+    init(climbingRoute: Binding<ClimbingRoute>, imageData: Binding<Data?>) {
+        self._climbingRoute = climbingRoute
+        self._imageData = imageData
+        self.tapPoints = climbingRoute.routeDots.wrappedValue ?? []
+    }
     
     var body: some View {
         NavigationView {
@@ -77,10 +84,13 @@ struct ImageEditingView: View {
                 }
                 .padding()
             }
+            .onAppear {
+                tapPoints = climbingRoute.routeDots ?? []
+            }
             .navigationBarItems(leading: Button("Discard") {
                 presentationMode.wrappedValue.dismiss()
             }, trailing: Button("Save") {
-                // TODO: Add save logic here
+                climbingRoute.routeDots = tapPoints
                 presentationMode.wrappedValue.dismiss()
             })
             .navigationBarTitle("Edit Image", displayMode: .inline)
@@ -102,7 +112,7 @@ struct ImageEditingView: View {
 struct ImageEditingView_Previews: PreviewProvider {
     static var previews: some View {
         if let image = UIImage(systemName: "cellularbars"), let imageData = image.jpegData(compressionQuality: 1) {
-            ImageEditingView(imageData: .constant(imageData))
+            ImageEditingView(climbingRoute: .constant(.init(name: "", difficulty: .blue, date: .now, succeeded: true, flashed: true, notes: "")), imageData: .constant(imageData))
         } else {
             Text("Failed to load system image")
         }

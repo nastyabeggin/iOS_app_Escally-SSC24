@@ -52,7 +52,7 @@ struct ClimbingRouteDetailView: View {
         .toolbar { toolbarContent }
         .alert(isPresented: $viewModel.showConfirmationDialog, content: confirmationAlert)
         .sheet(isPresented: $showingImageEditor) {
-            ImageEditingView(imageData: $viewModel.selectedRoute.image)
+            ImageEditingView(climbingRoute: $viewModel.selectedRoute, imageData: $viewModel.selectedRoute.image)
         }
     }
     

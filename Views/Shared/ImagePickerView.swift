@@ -28,7 +28,7 @@ struct ImagePickerView: View {
                         .frame(height: 200)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .onTapGesture {
-                            // add editing
+                            // TODO: add editing
                         }
                         .overlay(
                             Button(action: {

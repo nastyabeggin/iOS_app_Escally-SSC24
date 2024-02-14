@@ -17,6 +17,7 @@ class ClimbingRoute: Identifiable {
     var flashed: Bool
     var notes: String
     var image: Data?
+    var routeDots: [CGPoint]?
 
     init(id: UUID = UUID(),
          name: String,
@@ -25,7 +26,8 @@ class ClimbingRoute: Identifiable {
          date: Date,
          succeeded: Bool,
          flashed: Bool,
-         notes: String
+         notes: String,
+         routeDots: [CGPoint]? = nil
     ) {
         self.id = id
         self.name = name
@@ -35,6 +37,7 @@ class ClimbingRoute: Identifiable {
         self.succeeded = succeeded
         self.flashed = flashed
         self.notes = notes
+        self.routeDots = routeDots
     }
 
     func copy() -> ClimbingRoute {
