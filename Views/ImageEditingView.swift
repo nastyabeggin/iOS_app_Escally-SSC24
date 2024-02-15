@@ -1,11 +1,13 @@
 import SwiftUI
+import SwiftData
 
 struct ImageEditingView: View {
     @Binding var climbingRoute: ClimbingRoute
     @Binding var imageData: Data?
     @Environment(\.presentationMode) var presentationMode
     @State private var tapPoints: [CGPoint] = []
-
+    @State private var temporaryScale: CGFloat = 1.0
+    
     @GestureState private var isPressingDown: Bool = false
     
     init(climbingRoute: Binding<ClimbingRoute>, imageData: Binding<Data?>) {
@@ -23,6 +25,18 @@ struct ImageEditingView: View {
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
+                        .scaleEffect(temporaryScale)
+                        .gesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    self.temporaryScale = value
+                                }
+                                .onEnded { value in
+                                    withAnimation {
+                                        self.temporaryScale = 1.0
+                                    }
+                                }
+                        )
                         .simultaneousGesture(
                             LongPressGesture(minimumDuration: 0.25)
                                 .sequenced(before: LongPressGesture(minimumDuration: .infinity))
@@ -44,7 +58,7 @@ struct ImageEditingView: View {
                         )
                         .overlay(
                             Group {
-                                if !isPressingDown {
+                                if !isPressingDown && temporaryScale == 1.0 {
                                     Path { path in
                                         for (index, point) in tapPoints.enumerated() {
                                             if index == 0 {
@@ -109,12 +123,12 @@ struct ImageEditingView: View {
     
 }
 
-struct ImageEditingView_Previews: PreviewProvider {
-    static var previews: some View {
-        if let image = UIImage(systemName: "cellularbars"), let imageData = image.jpegData(compressionQuality: 1) {
-            ImageEditingView(climbingRoute: .constant(.init(name: "", difficulty: .blue, date: .now, succeeded: true, flashed: true, notes: "")), imageData: .constant(imageData))
-        } else {
-            Text("Failed to load system image")
-        }
+#Preview {
+    if let image = UIImage(systemName: "cellularbars"), let imageData = image.jpegData(compressionQuality: 1) {
+        ImageEditingView(climbingRoute: .constant(.init(name: "", difficulty: .blue, date: .now, succeeded: true, flashed: true, notes: "")), imageData: .constant(imageData))
+            .modelContainer(for: ClimbingRoute.self)
+    } else {
+        Text("Failed to load system image")
+            .modelContainer(for: ClimbingRoute.self)
     }
 }
