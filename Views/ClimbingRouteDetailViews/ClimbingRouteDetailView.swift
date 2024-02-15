@@ -17,10 +17,30 @@ struct ClimbingRouteDetailView: View {
                     selectedPickerItem: $viewModel.selectedPickerItem,
                     imageData: viewModel.selectedRoute.image
                 )
-                .onTapGesture {
-                    if case .success(_) = viewModel.imageState {
-                        showingImageEditor = true
+                .overlay(
+                    HStack(spacing: 10) {
+                        Image(systemName: "plus.magnifyingglass")
+                            .font(.body)
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Circle())
+                        if let routeDots = viewModel.selectedRoute.routeDots, !routeDots.isEmpty {
+                            Text("Route is marked")
+                                .font(.caption)
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.black.opacity(0.5))
+                                .cornerRadius(10)
+                        }
                     }
+                    .padding([.top, .leading], 10),
+                    alignment: .topLeading
+                )
+            }
+            .onTapGesture {
+                if case .success(_) = viewModel.imageState {
+                    showingImageEditor = true
                 }
             }
             Group {
@@ -128,3 +148,4 @@ struct ClimbingRouteDetailView: View {
         viewModel.saveDraftRoute()
     }
 }
+

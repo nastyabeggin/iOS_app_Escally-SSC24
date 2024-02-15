@@ -91,10 +91,11 @@ struct ImageEditingView: View {
                     Button("Undo") {
                         undoLast()
                     }
-                    
+                    .buttonStyle(.bordered)
                     Button("Clear All") {
                         clearAll()
                     }
+                    .buttonStyle(.bordered)
                 }
                 .padding()
             }
@@ -126,9 +127,7 @@ struct ImageEditingView: View {
 #Preview {
     if let image = UIImage(systemName: "cellularbars"), let imageData = image.jpegData(compressionQuality: 1) {
         ImageEditingView(climbingRoute: .constant(.init(name: "", difficulty: .blue, date: .now, succeeded: true, flashed: true, notes: "")), imageData: .constant(imageData))
-            .modelContainer(for: ClimbingRoute.self)
     } else {
         Text("Failed to load system image")
-            .modelContainer(for: ClimbingRoute.self)
     }
 }
