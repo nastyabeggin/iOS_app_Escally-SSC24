@@ -75,7 +75,6 @@ struct RoutesChartBarView: View {
     }
     
     private func updateSelectedRange(startingFrom date: Date) {
-        print(date)
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: date)
         guard let endDate = startDate.addingTimeInterval(timeRange) else { return }

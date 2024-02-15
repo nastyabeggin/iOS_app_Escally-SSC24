@@ -4,6 +4,7 @@ import PhotosUI
 struct ImagePickerView: View {
     @Binding var imageState: ImageState
     @Binding var selectedPickerItem: PhotosPickerItem?
+    @Binding var showingImageEditor: Bool
     
     var body: some View {
         Section {
@@ -27,19 +28,21 @@ struct ImagePickerView: View {
                         .scaledToFit()
                         .frame(height: 200)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        .onTapGesture {
+                            showingImageEditor = true
+                        }
                         .overlay(
                             Button(action: {
                                 imageState = .empty
                             }) {
                                 Image(systemName: "trash")
-                                    .font(.title3)
+                                    .font(.body)
                                     .foregroundColor(.white)
-                                    .padding(.all, 10)
-                                    .background(
-                                        LinearGradient(gradient: Gradient(colors: [Color.black.opacity(0.01), Color.black.opacity(0.5)]), startPoint: .bottomLeading, endPoint: .topTrailing)
-                                            .clipShape(Circle())
-                                    )
-                            },
+                                    .padding(10)
+                                    .background(Color.black.opacity(0.5))
+                                    .clipShape(Circle())
+                            }
+                            .padding([.top, .trailing], 10),
                             alignment: .topTrailing
                         )
                 }

@@ -13,12 +13,11 @@ struct AddClimbingRouteView: View {
             Form {
                 ImagePickerView(
                     imageState: $viewModel.imageState,
-                    selectedPickerItem: $viewModel.selectedPickerItem
+                    selectedPickerItem: $viewModel.selectedPickerItem,
+                    showingImageEditor: $showingImageEditor
                 )
                 .onTapGesture {
-                    if case .success(let imageData) = viewModel.imageState {
-                        showingImageEditor = true
-                    }
+                    showingImageEditor = true
                 }
                 RouteEditFieldsView(
                     name: $viewModel.currentClimbingRoute.name,

@@ -22,6 +22,12 @@ struct RoutesJournalView: View {
         NavigationView {
             GeometryReader { geometry in
                 VStack {
+                    Rectangle()
+                        .fill(Color.clear)
+                        .frame(height: 10)
+                        .background(LinearGradient(colors: [.orange.opacity(0.3), .accentColor.opacity(0.5)],
+                                                   startPoint: .topLeading, endPoint: .bottomTrailing)
+                        )
                     TimeRangePicker(timeRange: $timeRange)
                         .padding(.horizontal)
                     JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber)
@@ -35,9 +41,10 @@ struct RoutesJournalView: View {
                             }
                         }
                 }
+                .navigationTitle("Routes Journal")
             }
-            .navigationTitle("Routes Journal")
         }
+        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             allRoutesData = calculateData()
             selectedRouteRange = calculateInitialRange()
@@ -115,6 +122,7 @@ struct RoutesJournalView: View {
         return routesByDate
     }
 }
+
 
 #Preview {
     RoutesJournalView()
