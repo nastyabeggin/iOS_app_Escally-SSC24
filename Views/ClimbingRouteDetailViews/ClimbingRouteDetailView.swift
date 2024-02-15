@@ -18,7 +18,9 @@ struct ClimbingRouteDetailView: View {
                     imageData: viewModel.selectedRoute.image
                 )
                 .onTapGesture {
-                    showingImageEditor = true
+                    if case .success(_) = viewModel.imageState {
+                        showingImageEditor = true
+                    }
                 }
             }
             Group {

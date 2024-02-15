@@ -3,13 +3,8 @@ import SwiftData
 import PhotosUI
 
 class AddClimbingRouteViewModel: ObservableObject {
-    @Published var name: String = ""
-    @Published var difficulty: RouteDifficulty = .yellow
+    @Published var currentClimbingRoute: ClimbingRoute
     @Published var imageState: ImageState = .empty
-    @Published var date: Date = .now
-    @Published var succeeded: Bool = true
-    @Published var flashed: Bool = false
-    @Published var notes: String = ""
     @Published var selectedPickerItem: PhotosPickerItem? = nil {
         didSet {
             guard let item = selectedPickerItem else {
@@ -20,6 +15,10 @@ class AddClimbingRouteViewModel: ObservableObject {
         }
     }
     
+    init(currentClimbingRoute: ClimbingRoute = ClimbingRoute(name: "", difficulty: .yellow, date: Date(), succeeded: false, flashed: false, notes: "", routeDots: [])) {
+        self.currentClimbingRoute = currentClimbingRoute
+    }
+
     func saveRoute(context: ModelContext) {
         let routeImageData: Data? = {
             if case .success(let imageData) = imageState {
@@ -28,17 +27,8 @@ class AddClimbingRouteViewModel: ObservableObject {
                 return nil
             }
         }()
-
-        let newRoute = ClimbingRoute(
-            name: name,
-            difficulty: difficulty,
-            image: routeImageData,
-            date: date,
-            succeeded: succeeded,
-            flashed: flashed,
-            notes: notes
-        )
-        context.insert(newRoute)
+        currentClimbingRoute.image = routeImageData
+        context.insert(currentClimbingRoute)
     }
     
     func removeSelectedImage() {

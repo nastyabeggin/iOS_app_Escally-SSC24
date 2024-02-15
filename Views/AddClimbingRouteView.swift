@@ -5,6 +5,8 @@ struct AddClimbingRouteView: View {
     @ObservedObject var viewModel: AddClimbingRouteViewModel
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.modelContext) var context
+
+    @State private var showingImageEditor = false
     
     var body: some View {
         NavigationView {
@@ -13,16 +15,21 @@ struct AddClimbingRouteView: View {
                     imageState: $viewModel.imageState,
                     selectedPickerItem: $viewModel.selectedPickerItem
                 )
+                .onTapGesture {
+                    if case .success(let imageData) = viewModel.imageState {
+                        showingImageEditor = true
+                    }
+                }
                 RouteEditFieldsView(
-                    name: $viewModel.name,
-                    difficulty: $viewModel.difficulty,
-                    date: $viewModel.date,
-                    succeeded: $viewModel.succeeded,
-                    flashed: $viewModel.flashed
+                    name: $viewModel.currentClimbingRoute.name,
+                    difficulty: $viewModel.currentClimbingRoute.difficulty,
+                    date: $viewModel.currentClimbingRoute.date,
+                    succeeded: $viewModel.currentClimbingRoute.succeeded,
+                    flashed: $viewModel.currentClimbingRoute.flashed
                 )
                 NotesView(
                     isEditing: .constant(true),
-                    notes: $viewModel.notes
+                    notes: $viewModel.currentClimbingRoute.notes
                 )
             }
             .navigationBarItems(leading: Button("Cancel") {
@@ -31,6 +38,11 @@ struct AddClimbingRouteView: View {
                 viewModel.saveRoute(context: context)
                 presentationMode.wrappedValue.dismiss()
             })
+        }
+        .sheet(isPresented: $showingImageEditor) {
+            if case .success(let imageData) = viewModel.imageState {
+                ImageEditingView(climbingRoute: $viewModel.currentClimbingRoute, imageData: .constant(imageData))
+            }
         }
     }
 }
