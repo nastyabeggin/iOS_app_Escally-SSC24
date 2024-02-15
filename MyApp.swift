@@ -3,30 +3,33 @@ import SwiftData
 
 @main
 struct MyApp: App {
-    @State var showWelcome = false
-
+    @AppStorage("showWelcomeView") var showWelcomeView: Bool = true
+    
     var body: some Scene {
         WindowGroup {
-            if showWelcome {
-                WelcomeView(showWelcomeView: $showWelcome)
-            } else {
-                TabView {
-                    Group {
-                        ClimbingRoutesListView()
-                            .tabItem {
-                                Label("Routes", systemImage: "mountain.2")
-                            }
-                        RoutesJournalView()
-                            .tabItem {
-                                Label("Journal",
-                                      systemImage: "chart.bar.fill")
-                            }
-                        ChartsView()
-                            .tabItem {
-                                Label("Charts",
-                                      systemImage: "chart.pie.fill")
-                            }
-                    }
+            
+            TabView {
+                Group {
+                    ClimbingRoutesListView()
+                        .tabItem {
+                            Label("Routes", systemImage: "mountain.2")
+                        }
+                    RoutesJournalView()
+                        .tabItem {
+                            Label("Journal",
+                                  systemImage: "chart.bar.fill")
+                        }
+                    ChartsView()
+                        .tabItem {
+                            Label("Charts",
+                                  systemImage: "chart.pie.fill")
+                        }
+                }
+                .sheet(isPresented: $showWelcomeView) {
+                    WelcomeView(showWelcomeView: $showWelcomeView)
+                }
+                .onAppear {
+                    UserDefaults.standard.removeObject(forKey: "showWelcomeView")
                 }
             }
         }

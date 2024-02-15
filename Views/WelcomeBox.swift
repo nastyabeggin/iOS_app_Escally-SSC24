@@ -20,7 +20,8 @@ private extension View {
     func customTextModifier(forward: Bool = true) -> some View {
         self
             .zIndex(1)
-            .font(.title2)
+            .foregroundStyle(.primary)
+            .font(.title3)
             .padding(.horizontal, 87)
             .transition(forward ? .moveAndFade : .moveAndFadeBackwards)
     }
@@ -115,9 +116,9 @@ struct BackgroundRectangle: View {
         HStack {
             Spacer()
             Rectangle()
-                .foregroundStyle(.clear)
-                .background(Material.ultraThinMaterial)
+                .background(.ultraThinMaterial)
                 .cornerRadius(20)
+                .opacity(0.3)
             Spacer()
         }
         .zIndex(0)
@@ -129,8 +130,8 @@ struct CustomButtonStyle: ButtonStyle {
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding()
-            .foregroundStyle(.black)
-            .font(.title2)
+            .foregroundStyle(.primary)
+            .font(.body)
     }
 }
 
