@@ -34,4 +34,5 @@ struct ChartsView: View {
 
 #Preview {
     ChartsView()
+        .modelContainer(PreviewContainer([ClimbingRoute.self]).container)
 }

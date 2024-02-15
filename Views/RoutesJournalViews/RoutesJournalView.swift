@@ -115,3 +115,8 @@ struct RoutesJournalView: View {
         return routesByDate
     }
 }
+
+#Preview {
+    RoutesJournalView()
+        .modelContainer( PreviewContainer([ClimbingRoute.self]).container)
+}

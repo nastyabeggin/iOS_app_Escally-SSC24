@@ -109,11 +109,6 @@ struct ClimbingRoutesListView: View {
     }
 }
 
-#Preview {
-    ClimbingRoutesListView()
-        .modelContainer(for: ClimbingRoute.self)
-}
-
 private extension [ClimbingRoute] {
     func sort(on option: SortOption) -> [ClimbingRoute] {
         switch option {
@@ -127,4 +122,9 @@ private extension [ClimbingRoute] {
             self.sorted(by: { $0.succeeded && !$1.succeeded })
         }
     }
+}
+
+#Preview {
+    ClimbingRoutesListView()
+        .modelContainer( PreviewContainer([ClimbingRoute.self]).container)
 }

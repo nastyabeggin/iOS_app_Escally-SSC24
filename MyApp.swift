@@ -30,6 +30,6 @@ struct MyApp: App {
                 }
             }
         }
-        .modelContainer(for: ClimbingRoute.self)
+        .modelContainer(RoutesContainer.create())
     }
 }
