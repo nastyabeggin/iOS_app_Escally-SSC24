@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import TipKit
 
 struct ClimbingRoutesListView: View {
     @Environment(\.modelContext) var context
@@ -11,6 +12,7 @@ struct ClimbingRoutesListView: View {
     @State private var routeToDelete: ClimbingRoute?
     @State private var searchQuery = ""
     
+    private let addRouteTip = AddRouteTip()
     
     private var filteredRoutes: [ClimbingRoute] {
         if searchQuery.isEmpty {
@@ -29,7 +31,7 @@ struct ClimbingRoutesListView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 ForEach(filteredRoutes, id: \.self) { route in
                     NavigationLink {
@@ -42,7 +44,7 @@ struct ClimbingRoutesListView: View {
                                     isDeleteAlertPresented = true
                                     routeToDelete = route
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Image(systemName: "trash")
                                         .symbolVariant(.fill)
                                 }
                                 .tint(.red)
@@ -59,14 +61,10 @@ struct ClimbingRoutesListView: View {
             .toolbar {
                 ToolbarItemGroup(placement: .navigationBarTrailing) {
                     toolbarMenu
+                        .popoverTip(addRouteTip)
                 }
             }
             .navigationTitle("Climbing Routes")
-        }
-        .animation(.default, value: filteredRoutes)
-        .navigationViewStyle(StackNavigationViewStyle())
-        .sheet(isPresented: $showingAddRouteView) {
-            AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
         }
         .alert(isPresented: $isDeleteAlertPresented) {
             Alert(
@@ -77,6 +75,10 @@ struct ClimbingRoutesListView: View {
                 },
                 secondaryButton: .cancel()
             )
+        }
+        .animation(.default, value: filteredRoutes)
+        .sheet(isPresented: $showingAddRouteView) {
+            AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
         }
     }
     
@@ -97,7 +99,7 @@ struct ClimbingRoutesListView: View {
                 Label("Add Route", systemImage: "plus")
             }
         } label: {
-            Label("Options", systemImage: "ellipsis.circle")
+            Image(systemName: "ellipsis.circle")
         }
     }
     
@@ -127,4 +129,10 @@ private extension [ClimbingRoute] {
 #Preview {
     ClimbingRoutesListView()
         .modelContainer( PreviewContainer([ClimbingRoute.self]).container)
+        .task {
+            try? Tips.resetDatastore()
+            try? Tips.configure([
+                .datastoreLocation(.applicationDefault)
+            ])
+        }
 }

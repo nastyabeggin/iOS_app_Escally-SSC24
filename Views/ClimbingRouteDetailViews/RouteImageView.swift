@@ -8,6 +8,7 @@ struct RouteImageView: View {
     @Binding var showingImageEditor: Bool
     var routeIsMarked: Bool
     var imageData: Data?
+    private let viewMarkedRouteTip = ViewMarkedRouteTip()
     
     var body: some View {
         Group {
@@ -30,6 +31,7 @@ struct RouteImageView: View {
                                 .onTapGesture {
                                     showingImageEditor = true
                                 }
+                                .popoverTip(viewMarkedRouteTip)
                             if routeIsMarked {
                                 Text("Route is marked")
                                     .font(.caption)

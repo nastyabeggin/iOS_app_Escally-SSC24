@@ -7,7 +7,7 @@ struct WelcomeView: View {
     @State private var animateGradient: Bool = true
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 LinearGradient(colors: [.orange.opacity(0.5), .accentColor.opacity(0.7)],
                                startPoint: animateGradient ? .topLeading : .bottomLeading, endPoint: animateGradient ? .bottomTrailing : .topTrailing)
@@ -28,11 +28,6 @@ struct WelcomeView: View {
                     WelcomeBox(showWelcomeView: $showWelcomeView)
                 }
             }
-            .navigationViewStyle(StackNavigationViewStyle())
-            .navigationBarItems(
-                leading: Button("Discard", action: {presentationMode.wrappedValue.dismiss()})
-                    .foregroundStyle(.primary)
-            )
         }
     }
 }

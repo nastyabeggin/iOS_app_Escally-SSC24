@@ -1,5 +1,7 @@
 import SwiftUI
 import PhotosUI
+import TipKit
+import SwiftData
 
 struct AddClimbingRouteView: View {
     @ObservedObject var viewModel: AddClimbingRouteViewModel
@@ -7,6 +9,8 @@ struct AddClimbingRouteView: View {
     @Environment(\.modelContext) var context
 
     @State private var showingImageEditor = false
+    
+    private let addImageTip = AddImageTip()
     
     var body: some View {
         NavigationView {
@@ -19,6 +23,7 @@ struct AddClimbingRouteView: View {
                 .onTapGesture {
                     showingImageEditor = true
                 }
+                .popoverTip(addImageTip)
                 RouteEditFieldsView(
                     name: $viewModel.currentClimbingRoute.name,
                     difficulty: $viewModel.currentClimbingRoute.difficulty,
@@ -46,9 +51,13 @@ struct AddClimbingRouteView: View {
     }
 }
 
-struct AddClimbingRouteView_Previews: PreviewProvider {
-    static var previews: some View {
-        AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
-    }
+#Preview {
+    AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
+        .modelContainer(PreviewContainer([ClimbingRoute.self]).container)
+        .task {
+            try? Tips.resetDatastore()
+            try? Tips.configure([
+                .datastoreLocation(.applicationDefault)
+            ])
+        }
 }
-

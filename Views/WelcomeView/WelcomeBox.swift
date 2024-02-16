@@ -28,6 +28,8 @@ private extension View {
 }
 
 struct WelcomeBox: View {
+    @Environment(\.presentationMode) var presentationMode
+
     @Binding var showWelcomeView: Bool
     @State private var switchMessage: Bool = false
     @State private var isMovingForward: Bool = true
@@ -65,6 +67,7 @@ struct WelcomeBox: View {
     private func SkipButton() -> some View {
         Button("Skip"){
             showWelcomeView = false
+            presentationMode.wrappedValue.dismiss()
         }
         .buttonStyle(CustomButtonStyle())
     }
