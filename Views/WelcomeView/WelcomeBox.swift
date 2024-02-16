@@ -22,7 +22,7 @@ private extension View {
             .zIndex(1)
             .foregroundStyle(.primary)
             .font(.title3)
-            .padding(.horizontal, 87)
+            .padding(.horizontal, 40)
             .transition(forward ? .moveAndFade : .moveAndFadeBackwards)
     }
 }
@@ -33,35 +33,33 @@ struct WelcomeBox: View {
     @State private var isMovingForward: Bool = true
     
     var body: some View {
-        ZStack {
-            BackgroundRectangle()
-            WelcomeMessage()
-            BottomButtons()
+            VStack {
+                Spacer()
+                if !switchMessage {
+                    Text("It is an application created by a climber for all climbers")
+                        .customTextModifier(forward: isMovingForward)
+                } else {
+                    Text("We will give you a tour on our application")
+                        .customTextModifier(forward: isMovingForward)
+                }
+                Spacer()
+                HStack{
+                    if !switchMessage {
+                        SkipButton()
+                        Spacer()
+                        ForwardButton()
+                    } else {
+                        BackwardButton()
+                        Spacer()
+                        EndTourButton()
+                    }
+                }
+                .padding(.horizontal, 40)
+                .padding(.bottom)
                 .zIndex(1)
-        }
-        .frame(height: 320)
-    }
-    
-    @ViewBuilder
-    private func WelcomeMessage() -> some View {
-        if !switchMessage {
-            Text("It is an application created by a climber for all climbers")
-                .customTextModifier(forward: isMovingForward)
-        } else {
-            Text("We will give you a tour on our application")
-                .customTextModifier(forward: isMovingForward)
-        }
-    }
-    
-    @ViewBuilder
-    private func BottomButtons() -> some View {
-        if !switchMessage {
-            SkipButton()
-            ForwardButton()
-        } else {
-            BackwardButton()
-            EndTourButton()
-        }
+            }
+            .frame(width: 300, height: 250)
+            .background(BackgroundRectangle())
     }
     
     private func SkipButton() -> some View {
@@ -69,7 +67,6 @@ struct WelcomeBox: View {
             showWelcomeView = false
         }
         .buttonStyle(CustomButtonStyle())
-        .offset(x: -90, y: 130)
     }
     
     private func ForwardButton() -> some View {
@@ -82,7 +79,6 @@ struct WelcomeBox: View {
             Image(systemName: "arrow.forward")
         }
         .buttonStyle(CustomButtonStyle())
-        .offset(x: 100, y: 130)
     }
     
     private func BackwardButton() -> some View {
@@ -95,7 +91,6 @@ struct WelcomeBox: View {
             Image(systemName: "arrow.backward")
         }
         .buttonStyle(CustomButtonStyle())
-        .offset(x: -100, y: 130)
     }
     
     private func EndTourButton() -> some View {
@@ -107,7 +102,6 @@ struct WelcomeBox: View {
             Image(systemName: "arrow.forward")
         }
         .buttonStyle(CustomButtonStyle())
-        .offset(x: 100, y: 130)
     }
 }
 
@@ -116,13 +110,11 @@ struct BackgroundRectangle: View {
         HStack {
             Spacer()
             Rectangle()
-                .background(.ultraThinMaterial)
+                .foregroundStyle(.ultraThinMaterial)
                 .cornerRadius(20)
-                .opacity(0.3)
             Spacer()
         }
         .zIndex(0)
-        .padding(.horizontal, 57)
     }
 }
 
