@@ -5,7 +5,7 @@ import SwiftData
 struct RoutesJournalView: View {
     @Environment(\.modelContext) var context
     @Query private var routes: [ClimbingRoute]
-    
+
     @State var selectedRouteRange: [RouteByDate] = []
     @State var selectedTimeRange: [Date] = [Date().startOfWeek(), Calendar.current.date(byAdding: DateComponents(day: 6), to: Date().startOfWeek())!]
     @State var averageRouteNumber: Int = 0
@@ -17,7 +17,7 @@ struct RoutesJournalView: View {
         }
         return filteredRoutes
     }
-    
+
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -51,7 +51,7 @@ struct RoutesJournalView: View {
             averageRouteNumber = calculateAverageRouteNumber()
         }
     }
-    
+
     private func calculateAverageRouteNumber() -> Int {
         let workoutDays = selectedRouteRange
             .filter { $0.count != 0 }
@@ -61,14 +61,14 @@ struct RoutesJournalView: View {
             .reduce(0, +)
         return workoutDays == 0 ? 0 : allRoutes / workoutDays
     }
-    
+
     private func calculateInitialTimeRange() -> [Date] {
         let calendar = Calendar.current
         let startDate = Date().startOfWeek()
         let endDate = calendar.date(byAdding: DateComponents(day: 6), to: startDate)!
         return [startDate, endDate]
     }
-    
+
     private func calculateInitialRange() -> [RouteByDate] {
         let calendar = Calendar.current
         let startDate = Date().startOfWeek()
@@ -90,7 +90,7 @@ struct RoutesJournalView: View {
         }
         return routesByDate
     }
-    
+
     private func calculateData() -> [RouteByDate] {
         let calendar = Calendar.current
         let startDate: Date = filteredRoutes
@@ -101,7 +101,7 @@ struct RoutesJournalView: View {
             .map { $0.date }
             .sorted()
             .max() ?? calendar.date(byAdding: .weekOfMonth, value: 1, to: Date())!
-        
+
         var routesByDate = [RouteByDate]()
         var currentDate = calendar.startOfDay(for: startDate)
         while currentDate <= endDate {
@@ -120,7 +120,6 @@ struct RoutesJournalView: View {
         return routesByDate
     }
 }
-
 
 #Preview {
     RoutesJournalView()

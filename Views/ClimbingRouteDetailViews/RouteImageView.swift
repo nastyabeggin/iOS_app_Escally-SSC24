@@ -9,7 +9,7 @@ struct RouteImageView: View {
     var routeIsMarked: Bool
     var imageData: Data?
     private let viewMarkedRouteTip = ViewMarkedRouteTip()
-    
+
     var body: some View {
         Group {
             if let imageData = imageData, !isEditing, let uiImage = UIImage(data: imageData) {

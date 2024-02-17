@@ -5,15 +5,15 @@ import TipKit
 struct ClimbingRoutesListView: View {
     @Environment(\.modelContext) var context
     @Query private var routes: [ClimbingRoute]
-    
+
     @State private var showingAddRouteView = false
     @State var isDeleteAlertPresented = false
     @State var selectedSortOption: SortOption = .byDate
     @State private var routeToDelete: ClimbingRoute?
     @State private var searchQuery = ""
-    
+
     private let addRouteTip = AddRouteTip()
-    
+
     private var filteredRoutes: [ClimbingRoute] {
         if searchQuery.isEmpty {
             return routes.sort(on: selectedSortOption)
@@ -29,7 +29,7 @@ struct ClimbingRoutesListView: View {
         }
         return filteredRoutes.sort(on: selectedSortOption)
     }
-    
+
     var body: some View {
         NavigationStack {
             List {
@@ -83,7 +83,7 @@ struct ClimbingRoutesListView: View {
             AddClimbingRouteView(viewModel: AddClimbingRouteViewModel())
         }
     }
-    
+
     private var toolbarMenu: some View {
         Menu {
             Menu {
@@ -104,7 +104,7 @@ struct ClimbingRoutesListView: View {
             Image(systemName: "ellipsis.circle")
         }
     }
-    
+
     private func deleteRoute() {
         guard let routeToDelete = routeToDelete else { return }
         context.delete(routeToDelete)

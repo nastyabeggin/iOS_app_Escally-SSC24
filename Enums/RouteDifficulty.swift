@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 enum RouteDifficulty: String, CaseIterable, Identifiable, Codable {
     case yellow = "Yellow"
     case green = "Green"
@@ -8,9 +7,9 @@ enum RouteDifficulty: String, CaseIterable, Identifiable, Codable {
     case red = "Red"
     case purple = "Purple"
     case black = "Black"
-    
+
     var id: String { self.rawValue }
-    
+
     var color: Color {
         switch self {
         case .yellow: return .yellow
@@ -34,11 +33,11 @@ extension RouteDifficulty: Comparable {
         case .black: return 6
         }
     }
-    
+
     static func == (lhs: RouteDifficulty, rhs: RouteDifficulty) -> Bool {
         return lhs.sortOrder == rhs.sortOrder
     }
-    
+
     static func < (lhs: RouteDifficulty, rhs: RouteDifficulty) -> Bool {
         return lhs.sortOrder < rhs.sortOrder
     }

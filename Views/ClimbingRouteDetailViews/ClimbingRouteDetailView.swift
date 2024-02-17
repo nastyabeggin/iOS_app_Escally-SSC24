@@ -54,7 +54,7 @@ struct ClimbingRouteDetailView: View {
             ImageEditingView(climbingRoute: $viewModel.selectedRoute, imageData: $viewModel.selectedRoute.image)
         }
     }
-    
+
     private var toolbarContent: some ToolbarContent {
         Group {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -65,7 +65,7 @@ struct ClimbingRouteDetailView: View {
             }
         }
     }
-    
+
     private var backButton: some View {
         Button(action: backButtonAction) {
             HStack {
@@ -74,7 +74,7 @@ struct ClimbingRouteDetailView: View {
             }
         }
     }
-    
+
     private var editDoneButton: some View {
         Button(isEditing ? "Done" : "Edit") {
             withAnimation {
@@ -82,7 +82,7 @@ struct ClimbingRouteDetailView: View {
             }
         }
     }
-    
+
     private func backButtonAction() {
         if isEditing {
             viewModel.showConfirmationDialog = true
@@ -90,7 +90,7 @@ struct ClimbingRouteDetailView: View {
             navigateBack()
         }
     }
-    
+
     private func toggleEditing() {
         if isEditing {
             saveUpdatedRoute()
@@ -99,23 +99,23 @@ struct ClimbingRouteDetailView: View {
         }
         isEditing.toggle()
     }
-    
+
     private func confirmationAlert() -> Alert {
         Alert(
             title: Text("Unsaved Changes"),
             message: Text("Do you want to save your changes before leaving?"),
-            primaryButton: .default(Text("Save")){
+            primaryButton: .default(Text("Save")) {
                 saveUpdatedRoute()
                 navigateBack()
             },
             secondaryButton: .cancel(Text("Discard"), action: navigateBack)
         )
     }
-    
+
     private func navigateBack() {
         presentationMode.wrappedValue.dismiss()
     }
-    
+
     private func saveUpdatedRoute() {
         if case .success(let image) = viewModel.imageState {
             viewModel.draftRoute.image = image
@@ -125,4 +125,3 @@ struct ClimbingRouteDetailView: View {
         viewModel.saveDraftRoute()
     }
 }
-

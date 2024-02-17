@@ -7,7 +7,7 @@ struct RoutesChartBarView: View {
     @Binding var allRoutesData: [RouteByDate]
 
     @State private var scrollPosition = Date().startOfWeek()
-    @State private var selectedDate: Date? = nil
+    @State private var selectedDate: Date?
     @State private var visibleDomain = 3600 * 24 * 7
     @State private var xAxisStride: Calendar.Component = .day
     @State private var totalRoutes: Int = 0
@@ -37,7 +37,7 @@ struct RoutesChartBarView: View {
         }
         return finalRoutes
     }
-    
+
     var body: some View {
         Chart {
             ForEach(currentTimeRangeData, id: \.date) { element in
@@ -87,7 +87,7 @@ struct RoutesChartBarView: View {
         .chartScrollableAxes(.horizontal)
         .animation(.default, value: timeRange)
     }
-    
+
     private func updateSelectedRange(startingFrom date: Date) {
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: date)
@@ -97,14 +97,14 @@ struct RoutesChartBarView: View {
             let filteredRoutes = self.allRoutesData.filter { route in
                 route.date.isBetween(startDate: startDate, endDate: endDate)
             }
-            
+
             DispatchQueue.main.async {
                 self.selectedTimeRange = [startDate, endDate]
                 self.selectedRouteRange = filteredRoutes
             }
         }
     }
-    
+
     private func getVisibleDomain() -> Int {
         switch timeRange {
         case .week:
@@ -117,7 +117,7 @@ struct RoutesChartBarView: View {
             return 3600 * 24 * 30 * 12
         }
     }
-    
+
     private func getXAxisStride() -> Calendar.Component {
         switch timeRange {
         case .week:
@@ -130,7 +130,7 @@ struct RoutesChartBarView: View {
             return .month
         }
     }
-    
+
     private func getXAxisValues() -> AxisMarkValues {
         switch timeRange {
         case .week:
@@ -143,7 +143,7 @@ struct RoutesChartBarView: View {
             return .stride(by: .month)
         }
     }
-    
+
     private func getXAxisLabelFormat() -> Date.FormatStyle {
         switch timeRange {
         case .week:
@@ -156,13 +156,13 @@ struct RoutesChartBarView: View {
             return .dateTime.month(.abbreviated)
         }
     }
-    
+
     private func updateTotalRoutes() {
         guard let selectedDate = selectedDate else {
             totalRoutes = 0
             return
         }
-        
+
         let newTotalRoutes: Int
         switch timeRange {
         case .sixMonths:
@@ -182,7 +182,7 @@ struct RoutesChartBarView: View {
         }
         self.totalRoutes = newTotalRoutes
     }
-    
+
     private func annotationView(for date: Date) -> some View {
         AnnotationView(totalRoutes: totalRoutes, date: date, timeRange: timeRange)
     }

@@ -6,7 +6,7 @@ struct RouteEditFieldsView: View {
     @Binding var date: Date
     @Binding var succeeded: Bool
     @Binding var flashed: Bool
-    
+
     var body: some View {
         Section {
             TextField("Name", text: $name)

@@ -9,9 +9,9 @@ struct AddClimbingRouteView: View {
     @Environment(\.modelContext) var context
 
     @State private var showingImageEditor = false
-    
+
     private let addImageTip = AddImageTip()
-    
+
     var body: some View {
         NavigationView {
             Form {

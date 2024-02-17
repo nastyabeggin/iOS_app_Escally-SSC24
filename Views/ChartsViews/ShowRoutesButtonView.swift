@@ -4,7 +4,7 @@ struct ShowRoutesButtonView: View {
     @Binding var showOnlySucceeded: Bool
     @Binding var startDate: Date
     @Binding var endDate: Date
-    
+
     var body: some View {
         List {
             Section(header: Text("Options")) {

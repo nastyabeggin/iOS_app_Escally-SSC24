@@ -9,7 +9,7 @@ struct ChartsView: View {
     @State var showOnlySucceeded: Bool = false
     @State private var startDate: Date = Calendar.current.date(byAdding: .month, value: -1, to: Date()) ?? Date()
     @State private var endDate: Date = Date()
-    
+
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in

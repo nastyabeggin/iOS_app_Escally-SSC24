@@ -4,7 +4,7 @@ struct AnnotationView: View {
     var totalRoutes: Int
     var date: Date
     var timeRange: TimeRange
-    
+
     private var dateString: String {
         let dateFormatter = DateFormatter()
         switch timeRange {
@@ -20,7 +20,7 @@ struct AnnotationView: View {
             return dateFormatter.string(from: date)
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("TOTAL")

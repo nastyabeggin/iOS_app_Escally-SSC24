@@ -26,7 +26,6 @@ struct DatePickerSection: View {
     }
 }
 
-
 #Preview {
     DatePickerSection(startDate: .constant(.now), endDate: .constant(.now))
 }

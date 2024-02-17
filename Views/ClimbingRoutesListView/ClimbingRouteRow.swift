@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ClimbingRouteRow: View {
     @State var route: ClimbingRoute
-    
+
     var body: some View {
         HStack {
             Image(route.difficulty.rawValue.capitalized)

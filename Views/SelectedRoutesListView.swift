@@ -8,11 +8,11 @@ struct SelectedRoutesListView: View {
     @State var isDeleteAlertPresented = false
     @State private var searchQuery = ""
     @State private var routeToDelete: ClimbingRoute?
-    
+
     var showOnlySucceeded: Bool
     var startDate: Date
     var endDate: Date
-    
+
     private var filteredRoutes: [ClimbingRoute] {
         routes.filter { route in
             let matchesSucceededFilter = showOnlySucceeded ? route.succeeded : true
@@ -24,12 +24,11 @@ struct SelectedRoutesListView: View {
                 of: searchQuery,
                 options: .caseInsensitive) != nil
             let matchesSearchQuery = searchQuery.isEmpty || nameContainsQuery || difficultyContainsQuery
-            
+
             return matchesSucceededFilter && matchesDateRange && matchesSearchQuery
         }
     }
 
-    
     var body: some View {
         List {
             ForEach(filteredRoutes, id: \.self) { route in
@@ -70,7 +69,7 @@ struct SelectedRoutesListView: View {
             )
         }
     }
-    
+
     private func deleteRoute() {
         guard let routeToDelete = routeToDelete else { return }
         context.delete(routeToDelete)

@@ -12,7 +12,6 @@ struct SuccessToggle: View {
     }
 }
 
-
 #Preview {
     SuccessToggle(showOnlySucceeded: .constant(true))
 }

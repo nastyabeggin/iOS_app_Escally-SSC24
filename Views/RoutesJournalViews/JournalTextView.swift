@@ -3,7 +3,7 @@ import SwiftUI
 struct JournalTextView: View {
     @Binding var selectedTimeRange: [Date]
     @Binding var averageRouteNumber: Int
-    
+
     var body: some View {
         VStack {
             HStack(alignment: .lastTextBaseline, spacing: 5) {

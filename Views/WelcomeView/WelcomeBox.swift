@@ -7,7 +7,7 @@ extension AnyTransition {
             removal: .move(edge: .leading).combined(with: .opacity)
         )
     }
-    
+
     static var moveAndFadeBackwards: AnyTransition {
         .asymmetric(
             insertion: .move(edge: .leading).combined(with: .opacity),
@@ -33,7 +33,7 @@ struct WelcomeBox: View {
     @Binding var showWelcomeView: Bool
     @State private var switchMessage: Bool = false
     @State private var isMovingForward: Bool = true
-    
+
     var body: some View {
             VStack {
                 Spacer()
@@ -45,7 +45,7 @@ struct WelcomeBox: View {
                         .customTextModifier(forward: isMovingForward)
                 }
                 Spacer()
-                HStack{
+                HStack {
                     if !switchMessage {
                         SkipButton()
                         Spacer()
@@ -63,15 +63,15 @@ struct WelcomeBox: View {
             .frame(width: 300, height: 250)
             .background(BackgroundRectangle())
     }
-    
+
     private func SkipButton() -> some View {
-        Button("Skip"){
+        Button("Skip") {
             showWelcomeView = false
             presentationMode.wrappedValue.dismiss()
         }
         .buttonStyle(CustomButtonStyle())
     }
-    
+
     private func ForwardButton() -> some View {
         Button(action: {
             isMovingForward = true
@@ -83,7 +83,7 @@ struct WelcomeBox: View {
         }
         .buttonStyle(WelcomeButtonStyle())
     }
-    
+
     private func BackwardButton() -> some View {
         Button(action: {
             isMovingForward = false
@@ -95,7 +95,7 @@ struct WelcomeBox: View {
         }
         .buttonStyle(WelcomeButtonStyle())
     }
-    
+
     private func EndTourButton() -> some View {
         Button(action: {
             withAnimation(.easeOut(duration: 0.5)) {

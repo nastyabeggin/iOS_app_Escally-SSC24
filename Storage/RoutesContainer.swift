@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 actor RoutesContainer {
-    
+
     @MainActor
     static func create() -> ModelContainer {
         let schema = Schema([ClimbingRoute.self])

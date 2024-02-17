@@ -2,9 +2,9 @@ import SwiftData
 import Foundation
 
 struct PreviewContainer {
-    
+
     let container: ModelContainer!
-    
+
     init(_ types: [any PersistentModel.Type]) {
         let schema = Schema(types)
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -17,7 +17,7 @@ struct PreviewContainer {
             ClimbingRoute(name: "", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -2, to: .now)!, succeeded: true, flashed: true, notes: "")
         ])
     }
-    
+
     private func add(items: [any PersistentModel]) {
         Task { @MainActor in
             items.forEach { container.mainContext.insert($0) }

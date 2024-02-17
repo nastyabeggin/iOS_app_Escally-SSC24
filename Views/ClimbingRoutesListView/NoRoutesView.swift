@@ -35,11 +35,11 @@ struct NoRoutesView: View {
                             }
                         }
                     }
-                
+
                 Text("No routes")
                     .font(.title2)
                     .bold()
-                
+
                 Text("Go climbing and track your progress here!")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)

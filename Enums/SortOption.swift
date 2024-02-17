@@ -3,6 +3,6 @@ enum SortOption: String, CaseIterable, Identifiable {
     case byDate = "Date"
     case byDifficulty = "Difficulty"
     case bySuccess = "Successed"
-    
+
     var id: SortOption { self }
 }

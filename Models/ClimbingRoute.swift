@@ -69,7 +69,7 @@ extension ClimbingRoute: Hashable {
     static func == (lhs: ClimbingRoute, rhs: ClimbingRoute) -> Bool {
         lhs.id == rhs.id
     }
-    
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }

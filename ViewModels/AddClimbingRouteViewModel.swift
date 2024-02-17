@@ -5,7 +5,7 @@ import PhotosUI
 class AddClimbingRouteViewModel: ObservableObject {
     @Published var currentClimbingRoute: ClimbingRoute
     @Published var imageState: ImageState = .empty
-    @Published var selectedPickerItem: PhotosPickerItem? = nil {
+    @Published var selectedPickerItem: PhotosPickerItem? {
         didSet {
             guard let item = selectedPickerItem else {
                 imageState = .empty
@@ -14,7 +14,7 @@ class AddClimbingRouteViewModel: ObservableObject {
             loadImage(from: item)
         }
     }
-    
+
     init(currentClimbingRoute: ClimbingRoute = ClimbingRoute(name: "", difficulty: .yellow, date: Date(), succeeded: true, flashed: false, notes: "", routeDots: [])) {
         self.currentClimbingRoute = currentClimbingRoute
     }
@@ -30,11 +30,11 @@ class AddClimbingRouteViewModel: ObservableObject {
         currentClimbingRoute.image = routeImageData
         context.insert(currentClimbingRoute)
     }
-    
+
     func removeSelectedImage() {
         imageState = .empty
     }
-    
+
     private func loadImage(from item: PhotosPickerItem) {
         imageState = .loading(Progress(totalUnitCount: 1))
         item.loadTransferable(type: Data.self) { [weak self] result in

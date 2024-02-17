@@ -2,10 +2,10 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Environment(\.presentationMode) var presentationMode
-    
+
     @Binding var showWelcomeView: Bool
     @State private var animateGradient: Bool = true
-    
+
     var body: some View {
         NavigationStack {
             ZStack {

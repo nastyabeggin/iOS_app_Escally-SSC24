@@ -6,18 +6,18 @@ extension Date {
         let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
         return calendar.date(from: components) ?? self
     }
-    
+
     func isBetween(startDate: Date, endDate: Date) -> Bool {
         let startDay = startDate.startOfDay
         let endDay = endDate.startOfDay
         let routeDay = self.startOfDay
         return routeDay >= startDay && routeDay <= endDay
     }
-    
+
     var startOfDay: Date {
         return Calendar.current.startOfDay(for: self)
     }
-    
+
     func addingTimeInterval(_ interval: TimeRange) -> Date? {
         let calendar = Calendar.current
         switch interval {
@@ -35,7 +35,7 @@ extension Date {
     func timeRangeString(to endDate: Date) -> String {
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()
-        
+
         if calendar.isDate(self, equalTo: endDate, toGranularity: .year) {
             if calendar.isDate(self, equalTo: endDate, toGranularity: .month) {
                 if calendar.isDate(self, equalTo: endDate, toGranularity: .day) {
@@ -62,7 +62,7 @@ extension Date {
             return "\(startMonthYear) – \(endMonthYear)"
         }
     }
-    
+
     func startOfWeek(using calendar: Calendar) -> Date {
         calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self).date!
     }

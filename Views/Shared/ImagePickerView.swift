@@ -6,9 +6,9 @@ struct ImagePickerView: View {
     @Binding var imageState: ImageState
     @Binding var selectedPickerItem: PhotosPickerItem?
     @Binding var showingImageEditor: Bool
-    
+
     private let editImageTip = EditImageTip()
-    
+
     var body: some View {
         Section {
             switch imageState {

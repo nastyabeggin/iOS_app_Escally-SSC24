@@ -7,7 +7,7 @@ class ClimbingRouteViewModel: ObservableObject {
     @Published var showConfirmationDialog: Bool
     @Published var draftRoute: ClimbingRoute
     @Published var imageState: ImageState = .empty
-    @Published var selectedPickerItem: PhotosPickerItem? = nil {
+    @Published var selectedPickerItem: PhotosPickerItem? {
         didSet {
             guard let item = selectedPickerItem else {
                 imageState = .empty
@@ -29,7 +29,7 @@ class ClimbingRouteViewModel: ObservableObject {
     func saveDraftRoute() {
         selectedRoute.update(from: draftRoute)
     }
-    
+
     private func loadImage(from item: PhotosPickerItem) {
         imageState = .loading(Progress(totalUnitCount: 1))
         item.loadTransferable(type: Data.self) { [weak self] result in

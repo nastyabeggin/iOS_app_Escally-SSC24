@@ -8,19 +8,19 @@ struct ImageEditingView: View {
     @State private var tapPoints: [CGPoint] = []
     @State private var temporaryScale: CGFloat = 1.0
     @State private var deletedPoints: [CGPoint] = []
-    
+
     @GestureState private var isPressingDown: Bool = false
 
     private var isShowingPoints: Bool {
         !isPressingDown && temporaryScale == 1.0
     }
-    
+
     init(climbingRoute: Binding<ClimbingRoute>, imageData: Binding<Data?>) {
         self._climbingRoute = climbingRoute
         self._imageData = imageData
         self.tapPoints = climbingRoute.routeDots.wrappedValue ?? []
     }
-    
+
     var body: some View {
         NavigationView {
             VStack {
@@ -80,7 +80,7 @@ struct ImageEditingView: View {
             .navigationBarTitle("Edit Image", displayMode: .inline)
         }
     }
-    
+
     private func undoLast() {
         if let point = tapPoints.popLast() {
             deletedPoints.append(point)
@@ -92,7 +92,7 @@ struct ImageEditingView: View {
             tapPoints.append(point)
         }
     }
-    
+
     private func clearAll() {
         tapPoints.removeAll()
     }
@@ -134,7 +134,7 @@ struct ImageEditingView: View {
             .onChanged { value in
                 self.temporaryScale = value
             }
-            .onEnded { value in
+            .onEnded { _ in
                 withAnimation {
                     self.temporaryScale = 1.0
                 }
@@ -144,7 +144,7 @@ struct ImageEditingView: View {
     private func getHideGesture() -> some Gesture {
         LongPressGesture(minimumDuration: 0.25)
             .sequenced(before: LongPressGesture(minimumDuration: .infinity))
-            .updating($isPressingDown) { value, state, transaction in
+            .updating($isPressingDown) { value, state, _ in
                 switch value {
                 case .second(true, nil):
                     state = true

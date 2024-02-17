@@ -21,11 +21,11 @@ struct RoutesPieChartView: View {
         }, by: { $0.difficulty })
         return grouped.sorted { $0.key.rawValue > $1.key.rawValue }.map { RoutesByColor(difficulty: $0.key, count: $0.value.count) }
     }
-    
+
     private var routeColors: [Color] {
         routesByDifficulty.map { $0.difficulty.color }
     }
-    
+
     var body: some View {
         if routesByDifficulty.isEmpty {
             Text("No data")
@@ -50,7 +50,6 @@ struct RoutesPieChartView: View {
         }
     }
 }
-
 
 #Preview {
     RoutesPieChartView(showOnlySucceeded: .constant(true), startDate: .constant(.now), endDate: .constant(.now))
