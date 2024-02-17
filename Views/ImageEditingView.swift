@@ -7,6 +7,7 @@ struct ImageEditingView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var tapPoints: [CGPoint] = []
     @State private var temporaryScale: CGFloat = 1.0
+    @State private var deletedPoints: [CGPoint] = []
     
     @GestureState private var isPressingDown: Bool = false
 
@@ -23,90 +24,47 @@ struct ImageEditingView: View {
     var body: some View {
         NavigationView {
             VStack {
-                ZStack {
-                    // TODO: Fix unwrap
-                    Image(uiImage: UIImage(data: imageData!)!)
+                if let imageData = imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
                         .scaleEffect(temporaryScale)
-                        .gesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    self.temporaryScale = value
-                                }
-                                .onEnded { value in
-                                    withAnimation {
-                                        self.temporaryScale = 1.0
-                                    }
-                                }
-                        )
-                        .simultaneousGesture(
-                            LongPressGesture(minimumDuration: 0.25)
-                                .sequenced(before: LongPressGesture(minimumDuration: .infinity))
-                                .updating($isPressingDown) { value, state, transaction in
-                                    switch value {
-                                    case .second(true, nil):
-                                        state = true
-                                    default: break
-                                    }
-                                }
-                        )
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 0).onEnded { value in
-                                let tapLocation = value.startLocation
-                                if isShowingPoints {
-                                    tapPoints.append(tapLocation)
-                                }
-                            }
-                        )
+                        .gesture(getZoomGesture())
+                        .simultaneousGesture(getHideGesture())
+                        .simultaneousGesture(getAddPointGesture())
                         .overlay(
                             Group {
                                 if isShowingPoints {
-                                    ForEach(tapPoints.indices, id: \.self) { index in
-                                        ZStack {
-                                            Circle()
-                                                .stroke(.primary, lineWidth: 1)
-                                                .fill(.background)
-                                                .frame(width: 35, height: 35)
-                                            Text("✋")
-                                                .font(.headline)
-                                            Text("\(index + 1)")
-                                                .font(.caption2)
-                                                .foregroundColor(.black)
-                                                .padding(.trailing, 5)
-                                                .padding(.top, 9)
-                                        }
-                                        .position(tapPoints[index])
-                                    }
-                                    .zIndex(1)
-                                    Path { path in
-                                        for (index, point) in tapPoints.enumerated() {
-                                            if index == 0 {
-                                                path.move(to: point)
-                                            } else {
-                                                path.addLine(to: point)
-                                            }
-                                        }
-                                    }
-                                    .stroke(Color.accentColor, lineWidth: 2)
-                                    .zIndex(0)
+                                    getMarksView()
+                                        .zIndex(1)
+                                    getPathView()
+                                        .zIndex(0)
                                 }
                             }
                                 .animation(.default, value: isShowingPoints)
                         )
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                HStack {
-                    Button("Undo") {
-                        undoLast()
+                HStack(spacing: 40) {
+                    HStack {
+                        Button(action: {
+                            undoLast()
+                        }, label: {
+                            Image(systemName: "arrow.uturn.backward")
+                        })
+                        .buttonStyle(CustomButtonStyle())
+                        Button(action: {
+                            redoLast()
+                        }, label: {
+                            Image(systemName: "arrow.uturn.forward")
+                        })
+                        .buttonStyle(CustomButtonStyle())
                     }
-                    .buttonStyle(.bordered)
                     Button("Clear All") {
                         clearAll()
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(CustomButtonStyle())
                 }
                 .padding()
             }
@@ -124,15 +82,85 @@ struct ImageEditingView: View {
     }
     
     private func undoLast() {
-        if !tapPoints.isEmpty {
-            tapPoints.removeLast()
+        if let point = tapPoints.popLast() {
+            deletedPoints.append(point)
+        }
+    }
+
+    private func redoLast() {
+        if let point = deletedPoints.popLast() {
+            tapPoints.append(point)
         }
     }
     
     private func clearAll() {
         tapPoints.removeAll()
     }
-    
+
+    private func getMarksView() -> some View {
+        ForEach(tapPoints.indices, id: \.self) { index in
+            ZStack {
+                Circle()
+                    .stroke(.primary, lineWidth: 1)
+                    .fill(.background)
+                    .frame(width: 35, height: 35)
+                Text("✋")
+                    .font(.headline)
+                Text("\(index + 1)")
+                    .font(.caption2)
+                    .foregroundColor(.black)
+                    .padding(.trailing, 5)
+                    .padding(.top, 9)
+            }
+            .position(tapPoints[index])
+        }
+    }
+
+    private func getPathView() -> some View {
+        Path { path in
+            for (index, point) in tapPoints.enumerated() {
+                if index == 0 {
+                    path.move(to: point)
+                } else {
+                    path.addLine(to: point)
+                }
+            }
+        }
+        .stroke(Color.accentColor, lineWidth: 2)
+    }
+
+    private func getZoomGesture() -> some Gesture {
+        MagnificationGesture()
+            .onChanged { value in
+                self.temporaryScale = value
+            }
+            .onEnded { value in
+                withAnimation {
+                    self.temporaryScale = 1.0
+                }
+            }
+    }
+
+    private func getHideGesture() -> some Gesture {
+        LongPressGesture(minimumDuration: 0.25)
+            .sequenced(before: LongPressGesture(minimumDuration: .infinity))
+            .updating($isPressingDown) { value, state, transaction in
+                switch value {
+                case .second(true, nil):
+                    state = true
+                default: break
+                }
+            }
+    }
+
+    private func getAddPointGesture() -> some Gesture {
+        DragGesture(minimumDistance: 0).onEnded { value in
+            let tapLocation = value.startLocation
+            if isShowingPoints {
+                tapPoints.append(tapLocation)
+            }
+        }
+    }
 }
 
 #Preview {

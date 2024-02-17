@@ -93,7 +93,6 @@ struct RoutesJournalView: View {
     
     private func calculateData() -> [RouteByDate] {
         let calendar = Calendar.current
-        var dateComponents = DateComponents()
         let startDate: Date = filteredRoutes
             .map { $0.date }
             .sorted()

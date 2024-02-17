@@ -81,7 +81,7 @@ struct WelcomeBox: View {
         }) {
             Image(systemName: "arrow.forward")
         }
-        .buttonStyle(CustomButtonStyle())
+        .buttonStyle(WelcomeButtonStyle())
     }
     
     private func BackwardButton() -> some View {
@@ -93,7 +93,7 @@ struct WelcomeBox: View {
         }) {
             Image(systemName: "arrow.backward")
         }
-        .buttonStyle(CustomButtonStyle())
+        .buttonStyle(WelcomeButtonStyle())
     }
     
     private func EndTourButton() -> some View {
@@ -104,7 +104,7 @@ struct WelcomeBox: View {
         }) {
             Image(systemName: "arrow.forward")
         }
-        .buttonStyle(CustomButtonStyle())
+        .buttonStyle(WelcomeButtonStyle())
     }
 }
 
@@ -118,15 +118,6 @@ struct BackgroundRectangle: View {
             Spacer()
         }
         .zIndex(0)
-    }
-}
-
-struct CustomButtonStyle: ButtonStyle {
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .padding()
-            .foregroundStyle(.primary)
-            .font(.body)
     }
 }
 
