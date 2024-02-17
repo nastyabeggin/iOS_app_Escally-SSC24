@@ -15,14 +15,28 @@ struct RoutesChartBarView: View {
     private var currentTimeRangeData: [RouteByDate] {
         guard selectedTimeRange.count == 2 else { return [] }
 
+        let calendar = Calendar.current
+        var datesArray: [Date] = []
+        var finalRoutes: [RouteByDate] = []
+
         let startDate = selectedTimeRange[0]
         let endDate = selectedTimeRange[1]
 
-        return allRoutesData.filter { route in
-            route.date >= startDate && route.date <= endDate
+        var currentDate = startDate
+        while currentDate <= endDate {
+            datesArray.append(currentDate)
+            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
         }
+        for date in datesArray {
+            if let route = allRoutesData.first(where: { $0.date == date }) {
+                finalRoutes.append(route)
+            } else {
+                let emptyRouteByDate = RouteByDate(count: 0, date: date)
+                finalRoutes.append(emptyRouteByDate)
+            }
+        }
+        return finalRoutes
     }
-
     
     var body: some View {
         Chart {
@@ -77,7 +91,8 @@ struct RoutesChartBarView: View {
     private func updateSelectedRange(startingFrom date: Date) {
         let calendar = Calendar.current
         let startDate = calendar.startOfDay(for: date)
-        guard let endDate = startDate.addingTimeInterval(timeRange) else { return }
+        guard let endDate = startDate.addingTimeInterval(timeRange), let currentDatePlusInterval = Date().addingTimeInterval(timeRange) else { return }
+        if endDate > currentDatePlusInterval { return }
         DispatchQueue.global(qos: .userInitiated).async {
             let filteredRoutes = self.allRoutesData.filter { route in
                 route.date.isBetween(startDate: startDate, endDate: endDate)

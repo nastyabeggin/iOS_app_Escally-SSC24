@@ -9,6 +9,10 @@ struct ImageEditingView: View {
     @State private var temporaryScale: CGFloat = 1.0
     
     @GestureState private var isPressingDown: Bool = false
+
+    private var isShowingPoints: Bool {
+        !isPressingDown && temporaryScale == 1.0
+    }
     
     init(climbingRoute: Binding<ClimbingRoute>, imageData: Binding<Data?>) {
         self._climbingRoute = climbingRoute
@@ -20,6 +24,7 @@ struct ImageEditingView: View {
         NavigationView {
             VStack {
                 ZStack {
+                    // TODO: Fix unwrap
                     Image(uiImage: UIImage(data: imageData!)!)
                         .resizable()
                         .scaledToFit()
@@ -51,14 +56,31 @@ struct ImageEditingView: View {
                         .simultaneousGesture(
                             DragGesture(minimumDistance: 0).onEnded { value in
                                 let tapLocation = value.startLocation
-                                if !isPressingDown {
+                                if isShowingPoints {
                                     tapPoints.append(tapLocation)
                                 }
                             }
                         )
                         .overlay(
                             Group {
-                                if !isPressingDown && temporaryScale == 1.0 {
+                                if isShowingPoints {
+                                    ForEach(tapPoints.indices, id: \.self) { index in
+                                        ZStack {
+                                            Circle()
+                                                .stroke(.primary, lineWidth: 1)
+                                                .fill(.background)
+                                                .frame(width: 35, height: 35)
+                                            Text("✋")
+                                                .font(.headline)
+                                            Text("\(index + 1)")
+                                                .font(.caption2)
+                                                .foregroundColor(.black)
+                                                .padding(.trailing, 5)
+                                                .padding(.top, 9)
+                                        }
+                                        .position(tapPoints[index])
+                                    }
+                                    .zIndex(1)
                                     Path { path in
                                         for (index, point) in tapPoints.enumerated() {
                                             if index == 0 {
@@ -69,21 +91,10 @@ struct ImageEditingView: View {
                                         }
                                     }
                                     .stroke(Color.accentColor, lineWidth: 2)
-                                    
-                                    ForEach(tapPoints.indices, id: \.self) { index in
-                                        ZStack {
-                                            Text("✋")
-                                                .font(Font.custom("", size: 40, relativeTo: .title))
-                                            Text("\(index + 1)")
-                                                .font(.headline)
-                                                .foregroundColor(.black)
-                                                .padding(.trailing, 5)
-                                                .padding(.top, 9)
-                                        }
-                                        .position(tapPoints[index])
-                                    }
+                                    .zIndex(0)
                                 }
                             }
+                                .animation(.default, value: isShowingPoints)
                         )
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)

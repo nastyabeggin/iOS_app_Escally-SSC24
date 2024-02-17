@@ -19,7 +19,7 @@ struct RoutesJournalView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             GeometryReader { geometry in
                 VStack {
                     Rectangle()
@@ -44,7 +44,6 @@ struct RoutesJournalView: View {
                 .navigationTitle("Routes Journal")
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .onAppear {
             allRoutesData = calculateData()
             selectedRouteRange = calculateInitialRange()
@@ -99,11 +98,11 @@ struct RoutesJournalView: View {
             .map { $0.date }
             .sorted()
             .min() ?? calendar.date(byAdding: .month, value: -6, to: Date())!
-        let endDate: Date
+        let endDate: Date = filteredRoutes
+            .map { $0.date }
+            .sorted()
+            .max() ?? calendar.date(byAdding: .weekOfMonth, value: 1, to: Date())!
         
-        dateComponents.year = 1
-        dateComponents.day = -1
-        endDate = calendar.date(byAdding: dateComponents, to: Date())!
         var routesByDate = [RouteByDate]()
         var currentDate = calendar.startOfDay(for: startDate)
         while currentDate <= endDate {

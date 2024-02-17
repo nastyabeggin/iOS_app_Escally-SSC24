@@ -11,7 +11,7 @@ struct ChartsView: View {
     @State private var endDate: Date = Date()
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             GeometryReader { geometry in
                 ScrollView {
                     VStack(spacing: 20) {
@@ -28,7 +28,6 @@ struct ChartsView: View {
             }
             .navigationTitle("Charts")
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

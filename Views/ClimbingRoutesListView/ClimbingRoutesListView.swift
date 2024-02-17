@@ -117,7 +117,7 @@ private extension [ClimbingRoute] {
         case .byName:
             self.sorted(by: { $0.name < $1.name })
         case .byDate:
-            self.sorted(by: { $0.date < $1.date })
+            self.sorted(by: { $0.date > $1.date })
         case .byDifficulty:
             self.sorted(by: { $0.difficulty.rawValue < $1.difficulty.rawValue })
         case .bySuccess:
