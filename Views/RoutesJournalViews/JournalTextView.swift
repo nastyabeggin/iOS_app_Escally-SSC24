@@ -21,7 +21,7 @@ struct JournalTextView: View {
                     .font(.largeTitle)
                     .foregroundStyle(.primary)
                     .frame(alignment: .leading)
-                Text("routes")
+                Text(averageRouteNumber == 1 ? "route" : "routes")
                     .foregroundStyle(.secondary)
                 Spacer()
             }

@@ -15,7 +15,7 @@ class AddClimbingRouteViewModel: ObservableObject {
         }
     }
     
-    init(currentClimbingRoute: ClimbingRoute = ClimbingRoute(name: "", difficulty: .yellow, date: Date(), succeeded: false, flashed: false, notes: "", routeDots: [])) {
+    init(currentClimbingRoute: ClimbingRoute = ClimbingRoute(name: "", difficulty: .yellow, date: Date(), succeeded: true, flashed: false, notes: "", routeDots: [])) {
         self.currentClimbingRoute = currentClimbingRoute
     }
 

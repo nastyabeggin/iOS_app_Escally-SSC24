@@ -21,6 +21,7 @@ struct ClimbingRouteRow: View {
             Text(route.date.formatted(date: .numeric, time: .omitted))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+                .foregroundStyle(.secondary)
         }
     }
 }

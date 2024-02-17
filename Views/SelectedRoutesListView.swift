@@ -52,7 +52,7 @@ struct SelectedRoutesListView: View {
             }
         }
         .animation(.default, value: filteredRoutes)
-        .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search Routes")
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search by name/difficulty")
         .overlay {
             if filteredRoutes.isEmpty && !searchQuery.isEmpty {
                 ContentUnavailableView.search

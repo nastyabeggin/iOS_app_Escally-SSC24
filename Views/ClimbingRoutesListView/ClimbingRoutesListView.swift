@@ -52,10 +52,11 @@ struct ClimbingRoutesListView: View {
                     }
                 }
             }
-            .searchable(text: $searchQuery, prompt: "Search Routes")
             .overlay {
                 if filteredRoutes.isEmpty && !searchQuery.isEmpty {
                     ContentUnavailableView.search
+                } else if filteredRoutes.isEmpty {
+                    NoRoutesView()
                 }
             }
             .toolbar {
@@ -66,6 +67,7 @@ struct ClimbingRoutesListView: View {
             }
             .navigationTitle("Climbing Routes")
         }
+        .searchable(text: $searchQuery, prompt: "Search by name/difficulty")
         .alert(isPresented: $isDeleteAlertPresented) {
             Alert(
                 title: Text("Confirm Delete"),
@@ -119,7 +121,7 @@ private extension [ClimbingRoute] {
         case .byDate:
             self.sorted(by: { $0.date > $1.date })
         case .byDifficulty:
-            self.sorted(by: { $0.difficulty.rawValue < $1.difficulty.rawValue })
+            self.sorted(by: { $0.difficulty < $1.difficulty })
         case .bySuccess:
             self.sorted(by: { $0.succeeded && !$1.succeeded })
         }

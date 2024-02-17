@@ -15,7 +15,7 @@ struct MyApp: App {
                     Group {
                         ClimbingRoutesListView()
                             .tabItem {
-                                Label("Routes", systemImage: "mountain.2")
+                                Label("Routes", systemImage: "figure.climbing")
                             }
                         RoutesJournalView()
                             .tabItem {
