@@ -10,29 +10,26 @@ struct RoutesChartBarView: View {
     @State private var selectedDate: Date?
     @State private var visibleDomain = 3600 * 24 * 7
     @State private var xAxisStride: Calendar.Component = .day
+    @State private var majorValueAlignment: DateComponents = DateComponents(weekOfYear: 1)
     @State private var totalRoutes: Int = 0
+
     var timeRange: TimeRange
-    private var currentTimeRangeData: [RouteByDate] {
+    private var timeRangeData: [RouteByDate] {
         guard selectedTimeRange.count == 2 else { return [] }
 
         let calendar = Calendar.current
-        var datesArray: [Date] = []
         var finalRoutes: [RouteByDate] = []
 
-        let startDate = selectedTimeRange[0]
-        let endDate = selectedTimeRange[1]
-
+        let fallbackStartDate = Date().addingTimeInterval(timeRange.toTimeInterval())
+        let startDate = allRoutesData.map { $0.date }.min() ?? fallbackStartDate
+        let endDate = max(selectedTimeRange[1], allRoutesData.map { $0.date }.max() ?? selectedTimeRange[1])
         var currentDate = startDate
         while currentDate <= endDate {
-            datesArray.append(currentDate)
             currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
-        }
-        for date in datesArray {
-            if let route = allRoutesData.first(where: { $0.date == date }) {
+            if let route = allRoutesData.first(where: { $0.date == currentDate }) {
                 finalRoutes.append(route)
             } else {
-                let emptyRouteByDate = RouteByDate(count: 0, date: date)
-                finalRoutes.append(emptyRouteByDate)
+                finalRoutes.append(RouteByDate(count: 0, date: currentDate))
             }
         }
         return finalRoutes
@@ -40,7 +37,7 @@ struct RoutesChartBarView: View {
 
     var body: some View {
         Chart {
-            ForEach(currentTimeRangeData, id: \.date) { element in
+            ForEach(timeRangeData, id: \.date) { element in
                 BarMark(
                     x: .value("Date", element.date, unit: xAxisStride),
                     y: .value("Number of Routes", element.count)
@@ -61,11 +58,15 @@ struct RoutesChartBarView: View {
                     .zIndex(1)
             }
         }
+        .chartScrollableAxes(.horizontal)
         .chartXVisibleDomain(length: visibleDomain)
         .chartXSelection(value: $selectedDate)
         .chartScrollPosition(x: $scrollPosition)
         .chartScrollTargetBehavior(
-            .valueAligned(matching: DateComponents(weekday: 2)))
+            .valueAligned(
+                matching: DateComponents(day: 1),
+                majorAlignment: MajorValueAlignment.matching(majorValueAlignment))
+        )
         .chartXAxis {
             AxisMarks(values: getXAxisValues()) {
                 AxisValueLabel(format: getXAxisLabelFormat())
@@ -80,11 +81,11 @@ struct RoutesChartBarView: View {
             updateSelectedRange(startingFrom: scrollPosition)
             visibleDomain = getVisibleDomain()
             xAxisStride = getXAxisStride()
+            majorValueAlignment = getMajorValueAlignment()
         }
         .onChange(of: selectedDate) {
             updateTotalRoutes()
         }
-        .chartScrollableAxes(.horizontal)
         .animation(.default, value: timeRange)
     }
 
@@ -157,6 +158,24 @@ struct RoutesChartBarView: View {
         }
     }
 
+    private func getMajorValueAlignment() -> DateComponents {
+        switch timeRange {
+        case .week:
+            return DateComponents(weekday: 2)
+        case .month:
+            return DateComponents(month: 1)
+        case .sixMonths:
+            return DateComponents(month: 6)
+        case .year:
+            return DateComponents(year: 1)
+        }
+
+    }
+
+    private func annotationView(for date: Date) -> some View {
+        return AnnotationView(totalRoutes: totalRoutes, date: date, timeRange: timeRange)
+    }
+
     private func updateTotalRoutes() {
         guard let selectedDate = selectedDate else {
             totalRoutes = 0
@@ -181,9 +200,5 @@ struct RoutesChartBarView: View {
                 .reduce(0) { $0 + $1.count }
         }
         self.totalRoutes = newTotalRoutes
-    }
-
-    private func annotationView(for date: Date) -> some View {
-        AnnotationView(totalRoutes: totalRoutes, date: date, timeRange: timeRange)
     }
 }

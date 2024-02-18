@@ -6,7 +6,7 @@ struct RouteEditFieldsView: View {
     @Binding var date: Date
     @Binding var succeeded: Bool
     @Binding var flashed: Bool
-
+    
     var body: some View {
         Section {
             TextField("Name", text: $name)
@@ -25,14 +25,18 @@ struct RouteEditFieldsView: View {
             )
             .datePickerStyle(.compact)
             .frame(maxHeight: 400)
-            Toggle(isOn: $succeeded.animation()) {
-                Text("Succeeded")
-            }
-            if succeeded {
-                Toggle(isOn: $flashed) {
-                    Text("Flashed")
+            Group {
+                Toggle(isOn: $succeeded) {
+                    Text("Succeeded")
+                }
+                if succeeded {
+                    Toggle(isOn: $flashed) {
+                        Text("Flashed")
+                            .animation(.default, value: succeeded)
+                    }
                 }
             }
+            .animation(.bouncy, value: succeeded)
         }
     }
 }
