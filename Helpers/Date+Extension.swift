@@ -1,6 +1,26 @@
 import Foundation
 
 extension Date {
+    var formatted: String {
+        let calendar = Calendar.current
+        let dateFormatter = DateFormatter()
+        if calendar.isDateInToday(self) {
+            return "Today"
+        } else if calendar.isDateInYesterday(self) {
+            return "Yesterday"
+        }
+        let currentYear = calendar.component(.year, from: Date())
+        let dateYear = calendar.component(.year, from: self)
+        
+        if currentYear == dateYear {
+            dateFormatter.dateFormat = "d MMM"
+        } else {
+            dateFormatter.dateFormat = "d MMM yy"
+        }
+        
+        return dateFormatter.string(from: self)
+    }
+
     func startOfWeek() -> Date {
         let calendar = Calendar.current
         let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)

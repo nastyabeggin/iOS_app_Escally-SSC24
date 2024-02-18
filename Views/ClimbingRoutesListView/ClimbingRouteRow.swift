@@ -18,7 +18,7 @@ struct ClimbingRouteRow: View {
                     .foregroundColor(route.difficulty.color)
             }
             Spacer()
-            Text(route.date.formatted(date: .numeric, time: .omitted))
+            Text(route.date.formatted)
                 .font(.footnote)
                 .foregroundStyle(.secondary)
                 .foregroundStyle(.secondary)

@@ -22,7 +22,7 @@ struct RouteDetailsFieldsView: View {
         HStack {
             Text("Date")
             Spacer()
-            Text(date.formatted(date: .complete, time: .omitted))
+            Text(date.formatted)
         }
         HStack {
             Text("Succeeded")
