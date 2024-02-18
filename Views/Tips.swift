@@ -29,30 +29,6 @@ struct AddImageTip: Tip {
     }
 }
 
-struct ViewDetailedRouteInfoTip: Tip {
-    var title: Text {
-        Text("View and edit routes")
-    }
-
-    var message: Text? {
-        Text("Tap to view and edit added route")
-    }
-}
-
-struct EditImageTip: Tip {
-    var title: Text {
-        Text("Edit image")
-    }
-
-    var message: Text? {
-        Text("Tap here to edit added image and add marks")
-    }
-
-    var image: Image? {
-        Image(systemName: "pencil")
-    }
-}
-
 struct ViewMarkedRouteTip: Tip {
     var title: Text {
         Text("View marked route")

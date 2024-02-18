@@ -3,6 +3,7 @@ import Charts
 import SwiftData
 
 struct RoutesPieChartView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) var context
     @Query private var routes: [ClimbingRoute]
 
@@ -23,7 +24,13 @@ struct RoutesPieChartView: View {
     }
 
     private var routeColors: [Color] {
-        routesByDifficulty.map { $0.difficulty.color }
+        routesByDifficulty.map { 
+            if colorScheme == .dark && $0.difficulty == .black {
+                .gray
+            } else {
+                $0.difficulty.color
+            }
+        }
     }
 
     var body: some View {

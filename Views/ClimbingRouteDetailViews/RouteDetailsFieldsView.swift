@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct RouteDetailsFieldsView: View {
+    @Environment(\.colorScheme) var colorScheme
+
     @Binding var name: String
     @Binding var difficulty: RouteDifficulty
     @Binding var date: Date
@@ -16,7 +18,8 @@ struct RouteDetailsFieldsView: View {
             Text(difficulty.rawValue)
                 .foregroundStyle(difficulty.color)
             Circle()
-                .fill(difficulty.color)
+                .fill(difficulty == .black && colorScheme == .dark ? .black : difficulty.color)
+                .stroke(.white, lineWidth: difficulty == .black && colorScheme == .dark ? 1 : 0)
                 .frame(width: 20)
         }
         HStack {
