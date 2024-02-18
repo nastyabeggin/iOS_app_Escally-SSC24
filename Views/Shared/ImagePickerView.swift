@@ -6,9 +6,7 @@ struct ImagePickerView: View {
     @Binding var imageState: ImageState
     @Binding var selectedPickerItem: PhotosPickerItem?
     @Binding var showingImageEditor: Bool
-
-    private let editImageTip = EditImageTip()
-
+    
     var body: some View {
         Section {
             switch imageState {
@@ -34,7 +32,6 @@ struct ImagePickerView: View {
                         .onTapGesture {
                             showingImageEditor = true
                         }
-                        .popoverTip(editImageTip)
                         .overlay(
                             Button(action: {
                                 imageState = .empty
@@ -46,7 +43,7 @@ struct ImagePickerView: View {
                                     .background(Color.black.opacity(0.5))
                                     .clipShape(Circle())
                             }
-                            .padding([.top, .trailing], 10),
+                                .contentShape(Circle()),
                             alignment: .topTrailing
                         )
                 }
