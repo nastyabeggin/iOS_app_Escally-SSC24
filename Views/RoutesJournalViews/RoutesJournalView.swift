@@ -30,7 +30,7 @@ struct RoutesJournalView: View {
                         )
                     TimeRangePicker(timeRange: $timeRange)
                         .padding(.horizontal)
-                    JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber)
+                    JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber, timeRange: $timeRange)
                         .padding()
                     RoutesChartBarView(selectedRouteRange: $selectedRouteRange, selectedTimeRange: $selectedTimeRange, allRoutesData: $allRoutesData, timeRange: timeRange)
                         .frame(height: geometry.size.height / 3)
@@ -53,14 +53,23 @@ struct RoutesJournalView: View {
     }
 
     private func calculateAverageRouteNumber() -> Int {
-        let workoutDays = selectedRouteRange
-            .filter { $0.count != 0 }
-            .count
-        let allRoutes = selectedRouteRange
-            .map { $0.count }
-            .reduce(0, +)
-        return workoutDays == 0 ? 0 : allRoutes / workoutDays
+        let workoutDays = selectedRouteRange.filter { $0.count != 0 }.count
+        let allRoutes = selectedRouteRange.map { $0.count }.reduce(0, +)
+
+        guard workoutDays != 0 else { return 0 }
+
+        switch timeRange {
+        case .week, .month:
+            return Int(round(Double(allRoutes) / Double(workoutDays)))
+        case .sixMonths:
+            // For 6 months assuming approximately 4.3 weeks in a month
+            let weeksIn6Months = 6 * 4.3
+            return Int(round((Double(allRoutes) / (Double(workoutDays)) / weeksIn6Months)))
+        case .year:
+            return Int(round((Double(allRoutes) / (Double(workoutDays)) / 12)))
+        }
     }
+
 
     private func calculateInitialTimeRange() -> [Date] {
         let calendar = Calendar.current

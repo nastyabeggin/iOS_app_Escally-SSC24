@@ -20,24 +20,33 @@ extension Date {
         
         return dateFormatter.string(from: self)
     }
+    
+    var startOfMonth: Date {
 
-    func startOfWeek() -> Date {
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: self)
-        return calendar.date(from: components) ?? self
-    }
+        let calendar = Calendar(identifier: .gregorian)
+        let components = calendar.dateComponents([.year, .month], from: self)
 
-    func isBetween(startDate: Date, endDate: Date) -> Bool {
-        let startDay = startDate.startOfDay
-        let endDay = endDate.startOfDay
-        let routeDay = self.startOfDay
-        return routeDay >= startDay && routeDay <= endDay
+        return  calendar.date(from: components)!
     }
 
     var startOfDay: Date {
         return Calendar.current.startOfDay(for: self)
     }
 
+    func startOfWeek() -> Date {
+        let calendar = Calendar.current
+        var components = calendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: self.startOfDay)
+        let mondayInWeek = calendar.date(from: components)!
+        return mondayInWeek
+    }
+    
+    func isBetween(startDate: Date, endDate: Date) -> Bool {
+        let startDay = startDate.startOfDay
+        let endDay = endDate.startOfDay
+        let routeDay = self.startOfDay
+        return routeDay >= startDay && routeDay <= endDay
+    }
+        
     func addingTimeInterval(_ interval: TimeRange) -> Date? {
         let calendar = Calendar.current
         switch interval {
@@ -46,16 +55,30 @@ extension Date {
         case .month:
             return calendar.date(byAdding: .month, value: 1, to: self)
         case .sixMonths:
-            return calendar.date(byAdding: .month, value: 6, to: self)
+            return calendar.date(byAdding: .month, value: 6, to: self.endOfMonth())
         case .year:
-            return calendar.date(byAdding: .year, value: 1, to: self)
+            return calendar.date(byAdding: .year, value: 1, to: self.endOfMonth())
         }
     }
-
+    
+    func substractingTimeInterval(_ interval: TimeRange) -> Date? {
+        let calendar = Calendar.current
+        switch interval {
+        case .week:
+            return calendar.date(byAdding: .day, value: -6, to: self)
+        case .month:
+            return calendar.date(byAdding: .month, value: -1, to: self)
+        case .sixMonths:
+            return calendar.date(byAdding: .month, value: -6, to: self)
+        case .year:
+            return calendar.date(byAdding: .year, value: -1, to: self)
+        }
+    }
+    
     func timeRangeString(to endDate: Date) -> String {
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()
-
+        
         if calendar.isDate(self, equalTo: endDate, toGranularity: .year) {
             if calendar.isDate(self, equalTo: endDate, toGranularity: .month) {
                 if calendar.isDate(self, equalTo: endDate, toGranularity: .day) {
@@ -82,8 +105,12 @@ extension Date {
             return "\(startMonthYear) – \(endMonthYear)"
         }
     }
-
+    
     func startOfWeek(using calendar: Calendar) -> Date {
         calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self).date!
+    }
+    
+    func endOfMonth() -> Date {
+        return Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.startOfMonth)!
     }
 }

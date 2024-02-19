@@ -3,6 +3,7 @@ import SwiftUI
 struct JournalTextView: View {
     @Binding var selectedTimeRange: [Date]
     @Binding var averageRouteNumber: Int
+    @Binding var timeRange: TimeRange
 
     var body: some View {
         VStack {
@@ -11,9 +12,20 @@ struct JournalTextView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(alignment: .leading)
-                Text("on workout days")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                switch timeRange {
+                case .week, .month:
+                    Text("on workout days")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                case .sixMonths:
+                    Text("per week")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                case .year:
+                    Text("per month")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
             }
             HStack(alignment: .lastTextBaseline, spacing: 10) {

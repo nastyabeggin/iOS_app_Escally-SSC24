@@ -20,17 +20,19 @@ struct RoutesChartBarView: View {
         let calendar = Calendar.current
         var finalRoutes: [RouteByDate] = []
 
-        let fallbackStartDate = Date().addingTimeInterval(timeRange.toTimeInterval())
-        let startDate = allRoutesData.map { $0.date }.min() ?? fallbackStartDate
-        let endDate = max(selectedTimeRange[1], allRoutesData.map { $0.date }.max() ?? selectedTimeRange[1])
+        let fallbackStartDate = Date().startOfDay.substractingTimeInterval(timeRange) ?? Date()
+        let startDate = min(allRoutesData.map { $0.date }.min() ?? fallbackStartDate, fallbackStartDate).startOfDay
+        let endDate = Date().startOfDay.addingTimeInterval(timeRange) ?? Date()
+        
         var currentDate = startDate
         while currentDate <= endDate {
-            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
-            if let route = allRoutesData.first(where: { $0.date == currentDate }) {
+            if let route = allRoutesData.first(
+                where: { calendar.isDate(currentDate, inSameDayAs: $0.date)}) {
                 finalRoutes.append(route)
             } else {
                 finalRoutes.append(RouteByDate(count: 0, date: currentDate))
             }
+            currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate)!
         }
         return finalRoutes
     }
@@ -57,6 +59,9 @@ struct RoutesChartBarView: View {
                     }
                     .zIndex(1)
             }
+        }
+        .onAppear {
+            scrollPosition = Date.now
         }
         .chartScrollableAxes(.horizontal)
         .chartXVisibleDomain(length: visibleDomain)
@@ -161,7 +166,7 @@ struct RoutesChartBarView: View {
     private func getMajorValueAlignment() -> DateComponents {
         switch timeRange {
         case .week:
-            return DateComponents(weekday: 2)
+            return DateComponents(weekday: 1)
         case .month:
             return DateComponents(month: 1)
         case .sixMonths:
