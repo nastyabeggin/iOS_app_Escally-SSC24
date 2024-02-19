@@ -17,10 +17,6 @@ struct MyApp: App {
                         }
                 } else {
                     mainTabView
-                        .task {
-                            // TODO: REMOVE
-                            UserDefaults.standard.removeObject(forKey: "showWelcomeView")
-                        }
                 }
             }
             .animation(.easeInOut(duration: 0.5), value: showWelcomeView)
@@ -48,8 +44,6 @@ struct MyApp: App {
     }
     
     func configureTips() {
-        // TODO: REMOVE
-        try? Tips.resetDatastore()
         try? Tips.configure([
             .displayFrequency(.immediate),
             .datastoreLocation(.applicationDefault)

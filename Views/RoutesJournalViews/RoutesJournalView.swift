@@ -33,7 +33,7 @@ struct RoutesJournalView: View {
                     JournalTextView(selectedTimeRange: $selectedTimeRange, averageRouteNumber: $averageRouteNumber, timeRange: $timeRange)
                         .padding()
                     RoutesChartBarView(selectedRouteRange: $selectedRouteRange, selectedTimeRange: $selectedTimeRange, allRoutesData: $allRoutesData, timeRange: timeRange)
-                        .frame(height: geometry.size.height / 3)
+                        .frame(height: geometry.size.height / 2.5)
                         .padding()
                         .onChange(of: selectedTimeRange) {
                             DispatchQueue.main.async {

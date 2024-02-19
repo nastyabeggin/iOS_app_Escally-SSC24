@@ -36,10 +36,10 @@ struct WelcomeBox: View {
             VStack {
                 Spacer()
                 if !switchMessage {
-                    Text("It is an application created by a climber for all climbers")
+                    Text("It is an application created by a climber for all climbers to track the progress")
                         .customTextModifier(forward: isMovingForward)
                 } else {
-                    Text("We will give you a tour on our application")
+                    Text("We will give you a tour on the app")
                         .customTextModifier(forward: isMovingForward)
                 }
                 Spacer()
@@ -72,7 +72,7 @@ struct WelcomeBox: View {
     private func ForwardButton() -> some View {
         Button(action: {
             isMovingForward = true
-            withAnimation(.easeIn(duration: 0.5)) {
+            withAnimation(.easeIn(duration: 0.3)) {
                 switchMessage = true
             }
         }) {
@@ -84,7 +84,7 @@ struct WelcomeBox: View {
     private func BackwardButton() -> some View {
         Button(action: {
             isMovingForward = false
-            withAnimation(.easeOut(duration: 0.5)) {
+            withAnimation(.easeOut(duration: 0.3)) {
                 switchMessage = false
             }
         }) {
@@ -95,7 +95,7 @@ struct WelcomeBox: View {
 
     private func EndTourButton() -> some View {
         Button(action: {
-            withAnimation(.easeOut(duration: 0.5)) {
+            withAnimation(.easeOut(duration: 0.3)) {
                 showWelcomeView = false
             }
         }) {
