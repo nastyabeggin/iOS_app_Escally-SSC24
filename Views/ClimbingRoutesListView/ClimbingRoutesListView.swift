@@ -3,31 +3,24 @@ import SwiftData
 import TipKit
 
 struct ClimbingRoutesListView: View {
-    @Environment(\.modelContext) var context
+    @Environment(\.modelContext) private var context
     @Query private var routes: [ClimbingRoute]
 
+    @State private var isDeleteAlertPresented = false
+    @State private var selectedSortOption: SortOption = .byDate
     @State private var showingAddRouteView = false
-    @State var isDeleteAlertPresented = false
-    @State var selectedSortOption: SortOption = .byDate
     @State private var routeToDelete: ClimbingRoute?
     @State private var searchQuery = ""
 
     private let addRouteTip = AddRouteTip()
 
     private var filteredRoutes: [ClimbingRoute] {
-        if searchQuery.isEmpty {
-            return routes.sort(on: selectedSortOption)
+        let filtered = routes.filter {
+            searchQuery.isEmpty ||
+            $0.name.localizedCaseInsensitiveContains(searchQuery) ||
+            $0.difficulty.rawValue.localizedCaseInsensitiveContains(searchQuery)
         }
-        let filteredRoutes = routes.compactMap { route in
-            let nameContainsQuery = route.name.range(
-                of: searchQuery,
-                options: .caseInsensitive) != nil
-            let difficultyContainsQuery = route.difficulty.rawValue.range(
-                of: searchQuery,
-                options: .caseInsensitive) != nil
-            return (nameContainsQuery || difficultyContainsQuery) ? route : nil
-        }
-        return filteredRoutes.sort(on: selectedSortOption)
+        return filtered.sort(on: selectedSortOption)
     }
 
     var body: some View {
@@ -86,27 +79,22 @@ struct ClimbingRoutesListView: View {
 
     private var toolbarMenu: some View {
         Menu {
-            Menu {
-                Picker(selection: $selectedSortOption, label: Text("Sorting options")) {
-                    Text("Date").tag(SortOption.byDate)
-                    Text("Name").tag(SortOption.byName)
-                    Text("Difficulty").tag(SortOption.byDifficulty)
-                    Text("Succeeded").tag(SortOption.bySuccess)
-                }
+            Picker("Sorting options", selection: $selectedSortOption) {
+                Text("Date").tag(SortOption.byDate)
+                Text("Name").tag(SortOption.byName)
+                Text("Difficulty").tag(SortOption.byDifficulty)
+                Text("Succeeded").tag(SortOption.bySuccess)
             }
-        label: {
-            Label("Sort", systemImage: "arrow.up.arrow.down")
-        }
             Button(action: { showingAddRouteView.toggle() }) {
                 Label("Add Route", systemImage: "plus")
             }
         } label: {
-            Image(systemName: "ellipsis.circle")
+            Label("More options", systemImage: "ellipsis.circle")
         }
     }
 
     private func deleteRoute() {
-        guard let routeToDelete = routeToDelete else { return }
+        guard let routeToDelete else { return }
         context.delete(routeToDelete)
         try? context.save()
         self.routeToDelete = nil
@@ -117,20 +105,20 @@ private extension [ClimbingRoute] {
     func sort(on option: SortOption) -> [ClimbingRoute] {
         switch option {
         case .byName:
-            self.sorted(by: { $0.name < $1.name })
+            return sorted(by: { $0.name < $1.name })
         case .byDate:
-            self.sorted(by: { $0.date > $1.date })
+            return sorted(by: { $0.date > $1.date })
         case .byDifficulty:
-            self.sorted(by: { $0.difficulty < $1.difficulty })
+            return sorted(by: { $0.difficulty < $1.difficulty })
         case .bySuccess:
-            self.sorted(by: { $0.succeeded && !$1.succeeded })
+            return sorted(by: { $0.succeeded && !$1.succeeded })
         }
     }
 }
 
 #Preview {
     ClimbingRoutesListView()
-        .modelContainer( PreviewContainer([ClimbingRoute.self]).container)
+        .modelContainer(PreviewContainer([ClimbingRoute.self]).container)
         .task {
             try? Tips.resetDatastore()
             try? Tips.configure([

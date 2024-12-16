@@ -4,7 +4,7 @@ import Combine
 
 class ClimbingRouteViewModel: ObservableObject {
     @State var selectedRoute: ClimbingRoute
-    @Published var showConfirmationDialog: Bool
+    @Published var showConfirmationDialog = false
     @Published var draftRoute: ClimbingRoute
     @Published var imageState: ImageState = .empty
     @Published var selectedPickerItem: PhotosPickerItem? {
@@ -18,7 +18,6 @@ class ClimbingRouteViewModel: ObservableObject {
     }
 
     init(climbingRoute: ClimbingRoute) {
-        self.showConfirmationDialog = false
         self.selectedRoute = climbingRoute
         self.draftRoute = climbingRoute.copy()
         if let image = climbingRoute.image {
@@ -33,19 +32,22 @@ class ClimbingRouteViewModel: ObservableObject {
     private func loadImage(from item: PhotosPickerItem) {
         imageState = .loading(Progress(totalUnitCount: 1))
         item.loadTransferable(type: Data.self) { [weak self] result in
-            guard let self else { return }
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let data):
-                    if let data = data, let _ = UIImage(data: data) {
-                        self.imageState = .success(data)
-                        self.selectedRoute.image = data
-                    } else {
-                        self.imageState = .failure(TransferError.importFailed)
-                    }
-                case .failure(let error):
-                    self.imageState = .failure(error)
+            self?.handleImageLoadResult(result)
+        }
+    }
+
+    private func handleImageLoadResult(_ result: Result<Data?, Error>) {
+        DispatchQueue.main.async {
+            switch result {
+            case .success(let data):
+                if let data = data, UIImage(data: data) != nil {
+                    self.imageState = .success(data)
+                    self.updateRouteImage(data)
+                } else {
+                    self.imageState = .failure(TransferError.importFailed)
                 }
+            case .failure(let error):
+                self.imageState = .failure(error)
             }
         }
     }

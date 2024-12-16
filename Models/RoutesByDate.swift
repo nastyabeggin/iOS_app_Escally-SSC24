@@ -5,10 +5,10 @@ struct RouteByDate: Comparable {
     var date: Date
 
     static func == (lhs: RouteByDate, rhs: RouteByDate) -> Bool {
-        return lhs.date == rhs.date
+        lhs.date == rhs.date
     }
 
     static func < (lhs: RouteByDate, rhs: RouteByDate) -> Bool {
-        return lhs.date < rhs.date
+        lhs.date < rhs.date
     }
 }

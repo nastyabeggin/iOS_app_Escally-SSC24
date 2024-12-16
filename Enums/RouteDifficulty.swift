@@ -8,7 +8,7 @@ enum RouteDifficulty: String, CaseIterable, Identifiable, Codable {
     case purple = "Purple"
     case black = "Black"
 
-    var id: String { self.rawValue }
+    var id: String { rawValue }
 
     var color: Color {
         switch self {
@@ -20,9 +20,7 @@ enum RouteDifficulty: String, CaseIterable, Identifiable, Codable {
         case .black: return .primary
         }
     }
-}
 
-extension RouteDifficulty: Comparable {
     private var sortOrder: Int {
         switch self {
         case .yellow: return 0
@@ -30,15 +28,13 @@ extension RouteDifficulty: Comparable {
         case .blue: return 2
         case .red: return 3
         case .purple: return 4
-        case .black: return 6
+        case .black: return 5
         }
     }
+}
 
-    static func == (lhs: RouteDifficulty, rhs: RouteDifficulty) -> Bool {
-        return lhs.sortOrder == rhs.sortOrder
-    }
-
+extension RouteDifficulty: Comparable {
     static func < (lhs: RouteDifficulty, rhs: RouteDifficulty) -> Bool {
-        return lhs.sortOrder < rhs.sortOrder
+        lhs.sortOrder < rhs.sortOrder
     }
 }

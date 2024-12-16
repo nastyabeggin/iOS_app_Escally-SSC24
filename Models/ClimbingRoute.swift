@@ -4,7 +4,7 @@ import SwiftUI
 import SwiftData
 
 @Model
-class ClimbingRoute: Identifiable {
+class ClimbingRoute: Identifiable, Hashable {
     let id: UUID
     var name: String
     var difficulty: RouteDifficulty
@@ -27,8 +27,7 @@ class ClimbingRoute: Identifiable {
          succeeded: Bool,
          flashed: Bool,
          notes: String,
-         routeDots: [CGPoint]? = nil
-    ) {
+         routeDots: [CGPoint]? = nil) {
         self.id = id
         self.name = name
         self.difficulty = difficulty
@@ -41,7 +40,7 @@ class ClimbingRoute: Identifiable {
     }
 
     func copy() -> ClimbingRoute {
-        let climbingRoute = ClimbingRoute(
+        ClimbingRoute(
             id: id,
             name: name,
             difficulty: difficulty,
@@ -49,9 +48,9 @@ class ClimbingRoute: Identifiable {
             date: date,
             succeeded: succeeded,
             flashed: flashed,
-            notes: notes
+            notes: notes,
+            routeDots: routeDots
         )
-        return climbingRoute
     }
 
     func update(from draft: ClimbingRoute) {
@@ -62,10 +61,9 @@ class ClimbingRoute: Identifiable {
         flashed = draft.flashed
         succeeded = draft.succeeded
         notes = draft.notes
+        routeDots = draft.routeDots
     }
-}
 
-extension ClimbingRoute: Hashable {
     static func == (lhs: ClimbingRoute, rhs: ClimbingRoute) -> Bool {
         lhs.id == rhs.id
     }

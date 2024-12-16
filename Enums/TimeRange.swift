@@ -6,11 +6,7 @@ enum TimeRange: String, CaseIterable, Identifiable {
     case sixMonths = "6M"
     case year = "Y"
 
-    var id: String {
-        self.rawValue
-    }
+    var id: String { rawValue }
 
-    var description: String {
-        self.rawValue
-    }
+    var description: String { rawValue }
 }
