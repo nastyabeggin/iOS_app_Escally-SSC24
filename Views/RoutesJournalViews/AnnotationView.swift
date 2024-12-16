@@ -12,8 +12,14 @@ struct AnnotationView: View {
             dateFormatter.dateFormat = "d MMM yyyy"
             return dateFormatter.string(from: date)
         case .sixMonths:
-            let startOfWeek = date.startOfWeek(using: .current)
-            let endOfWeek = Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)!
+            guard let startOfWeek = date.startOfWeek(using: .current) else {
+                Logger.error("Failed to calculate start of week for date: \(date)")
+                return "Invalid Date"
+            }
+            guard let endOfWeek = Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek) else {
+                Logger.error("Failed to calculate end of week from start: \(startOfWeek)")
+                return "Invalid Date"
+            }
             return startOfWeek.timeRangeString(to: endOfWeek)
         case .year:
             dateFormatter.dateFormat = "MMM yyyy"

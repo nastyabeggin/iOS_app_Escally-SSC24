@@ -11,7 +11,8 @@ actor RoutesContainer {
             let container = try ModelContainer(for: schema, configurations: [configuration])
             return container
         } catch {
-            fatalError("Could not initialize ModelContainer")
+            Logger.error("Failed to configure RoutesContainer: \(error.localizedDescription)")
+            throw ModelContainerError.schemaInitializationFailed
         }
     }
 }
