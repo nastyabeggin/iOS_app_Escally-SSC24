@@ -1,17 +1,19 @@
-import Foundation
 import SwiftData
+import Foundation
 
 actor RoutesContainer {
-    
-    @MainActor
-    static func create() -> ModelContainer {
-        do {
-            let schema = Schema([ClimbingRoute.self])
-            let configuration = ModelConfiguration()
-            let container = try ModelContainer(for: schema, configurations: [configuration])
-            return container
-        } catch {
-            fatalError("Could not initialize ModelContainer")
-        }
+
+    let dataContainer: DataContainer
+
+    init() async throws {
+        self.dataContainer = try DataContainer(types: [ClimbingRoute.self])
+    }
+
+    func addRoute(_ route: ClimbingRoute) async throws {
+        try await dataContainer.add(items: [route])
+    }
+
+    func fetchRoutes() -> [ClimbingRoute] {
+        dataContainer.fetch(ClimbingRoute.self)
     }
 }

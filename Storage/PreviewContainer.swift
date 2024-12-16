@@ -3,28 +3,26 @@ import Foundation
 
 struct PreviewContainer {
 
-    let container: ModelContainer
+    let dataContainer: DataContainer
 
-    init(_ types: [any PersistentModel.Type]) {
+    init() {
         do {
-            let schema = Schema(types)
-            let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
-            self.container = try ModelContainer(for: schema, configurations: [configuration])
-            self.add(items: [
-                ClimbingRoute(name: "", difficulty: .red, date: Calendar.current.date(byAdding: .day, value: -6, to: .now)!, succeeded: true, flashed: true, notes: ""),
-                ClimbingRoute(name: "", difficulty: .red, date: Calendar.current.date(byAdding: .day, value: -5, to: .now)!, succeeded: true, flashed: true, notes: ""),
-                ClimbingRoute(name: "", difficulty: .red, date: Calendar.current.date(byAdding: .day, value: -10, to: .now)!, succeeded: true, flashed: true, notes: ""),
-                ClimbingRoute(name: "", difficulty: .yellow, date: Calendar.current.date(byAdding: .day, value: -1, to: .now)!, succeeded: true, flashed: true, notes: ""),
-                ClimbingRoute(name: "", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -2, to: .now)!, succeeded: true, flashed: true, notes: "")
-            ])
+            self.dataContainer = try DataContainer(types: [ClimbingRoute.self], isInMemory: true)
+            Task {
+                try await self.addPreviewData()
+            }
         } catch {
-            fatalError("Could not initialize ModelContainer for preview")
+            Logger.error("Failed to initialize PreviewContainer: \(error.localizedDescription)")
         }
     }
 
-    private func add(items: [any PersistentModel]) {
-        Task { @MainActor in
-            items.forEach { container.mainContext.insert($0) }
-        }
+    private func addPreviewData() async throws {
+        let previewRoutes = [
+            ClimbingRoute(name: "Route 1", difficulty: .red, date: Calendar.current.date(byAdding: .day, value: -6, to: .now) ?? .now, succeeded: true, flashed: true, notes: "Challenging route"),
+            ClimbingRoute(name: "Route 2", difficulty: .yellow, date: Calendar.current.date(byAdding: .day, value: -5, to: .now) ?? .now, succeeded: true, flashed: false, notes: "Technical climb"),
+            ClimbingRoute(name: "Route 3", difficulty: .blue, date: Calendar.current.date(byAdding: .day, value: -10, to: .now) ?? .now, succeeded: false, flashed: false, notes: ""),
+            ClimbingRoute(name: "Route 4", difficulty: .purple, date: Calendar.current.date(byAdding: .day, value: -2, to: .now) ?? .now, succeeded: true, flashed: true, notes: "Long endurance route")
+        ]
+        try await dataContainer.add(items: previewRoutes)
     }
 }
