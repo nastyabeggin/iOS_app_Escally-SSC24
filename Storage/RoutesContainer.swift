@@ -8,10 +8,9 @@ actor RoutesContainer {
         do {
             let schema = Schema([ClimbingRoute.self])
             let configuration = ModelConfiguration()
-            let container = try ModelContainer(for: schema, configurations: [configuration])
-            return container
+            return try ModelContainer(for: schema, configurations: [configuration])
         } catch {
-            fatalError("Could not initialize ModelContainer")
+            fatalError("Failed to initialize ModelContainer: \(error.localizedDescription)")
         }
     }
 }

@@ -9,42 +9,34 @@ extension Date {
         } else if calendar.isDateInYesterday(self) {
             return "Yesterday"
         }
-        let currentYear = calendar.component(.year, from: Date())
-        let dateYear = calendar.component(.year, from: self)
         
-        if currentYear == dateYear {
-            dateFormatter.dateFormat = "d MMM"
-        } else {
-            dateFormatter.dateFormat = "d MMM yy"
-        }
-        
+        let isSameYear = calendar.isDate(self, equalTo: Date(), toGranularity: .year)
+        dateFormatter.dateFormat = isSameYear ? "d MMM" : "d MMM yy"
         return dateFormatter.string(from: self)
     }
     
     var startOfMonth: Date {
-
         let calendar = Calendar(identifier: .gregorian)
-        let components = calendar.dateComponents([.year, .month], from: self)
-
-        return  calendar.date(from: components)!
+        guard let date = calendar.date(from: calendar.dateComponents([.year, .month], from: self)) else {
+            fatalError("Failed to calculate start of month")
+        }
+        return date
     }
 
     var startOfDay: Date {
-        return Calendar.current.startOfDay(for: self)
+        Calendar.current.startOfDay(for: self)
     }
 
-    func startOfWeek() -> Date {
-        let calendar = Calendar.current
-        var components = calendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: self.startOfDay)
-        let mondayInWeek = calendar.date(from: components)!
-        return mondayInWeek
+    func startOfWeek(using calendar: Calendar = .current) -> Date {
+        guard let date = calendar.date(from: calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self)) else {
+            fatalError("Failed to calculate start of week")
+        }
+        return date
     }
     
     func isBetween(startDate: Date, endDate: Date) -> Bool {
-        let startDay = startDate.startOfDay
-        let endDay = endDate.startOfDay
         let routeDay = self.startOfDay
-        return routeDay >= startDay && routeDay <= endDay
+        return routeDay >= startDate.startOfDay && routeDay <= endDate.startOfDay
     }
         
     func addingTimeInterval(_ interval: TimeRange) -> Date? {
@@ -61,7 +53,7 @@ extension Date {
         }
     }
     
-    func substractingTimeInterval(_ interval: TimeRange) -> Date? {
+    func subtractingTimeInterval(_ interval: TimeRange) -> Date? {
         let calendar = Calendar.current
         switch interval {
         case .week:
@@ -106,11 +98,10 @@ extension Date {
         }
     }
     
-    func startOfWeek(using calendar: Calendar) -> Date {
-        calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self).date!
-    }
-    
     func endOfMonth() -> Date {
-        return Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.startOfMonth)!
+        guard let date = Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.startOfMonth) else {
+            fatalError("Failed to calculate end of month")
+        }
+        return date
     }
 }

@@ -6,9 +6,9 @@ struct RoutesJournalView: View {
     @Environment(\.modelContext) var context
     @Query private var routes: [ClimbingRoute]
 
-    @State var selectedRouteRange: [RouteByDate] = []
-    @State var selectedTimeRange: [Date] = [Date().startOfWeek(), Calendar.current.date(byAdding: DateComponents(day: 6), to: Date().startOfWeek())!]
-    @State var averageRouteNumber: Int = 0
+    @State private var selectedRouteRange: [RouteByDate] = []
+    @State private var selectedTimeRange: [Date] = [Date().startOfWeek(), Calendar.current.date(byAdding: DateComponents(day: 6), to: Date().startOfWeek())!]
+    @State private var averageRouteNumber: Int = 0
     @State private var timeRange: TimeRange = .week
     @State private var allRoutesData: [RouteByDate] = []
     private var filteredRoutes: [ClimbingRoute] {

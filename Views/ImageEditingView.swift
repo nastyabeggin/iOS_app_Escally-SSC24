@@ -5,6 +5,7 @@ struct ImageEditingView: View {
     @Binding var climbingRoute: ClimbingRoute
     @Binding var imageData: Data?
     @Environment(\.presentationMode) var presentationMode
+
     @State private var tapPoints: [CGPoint] = []
     @State private var temporaryScale: CGFloat = 1.0
     @State private var deletedPoints: [CGPoint] = []

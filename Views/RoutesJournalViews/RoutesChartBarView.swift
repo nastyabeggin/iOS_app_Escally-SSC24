@@ -20,7 +20,7 @@ struct RoutesChartBarView: View {
         let calendar = Calendar.current
         var finalRoutes: [RouteByDate] = []
 
-        let fallbackStartDate = Date().startOfDay.substractingTimeInterval(timeRange) ?? Date()
+        let fallbackStartDate = Date().startOfDay.subtractingTimeInterval(timeRange) ?? Date()
         let startDate = min(allRoutesData.map { $0.date }.min() ?? fallbackStartDate, fallbackStartDate).startOfDay
         let endDate = Date().startOfDay.addingTimeInterval(timeRange) ?? Date()
         
