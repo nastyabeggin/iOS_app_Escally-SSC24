@@ -9,34 +9,32 @@ extension Date {
         } else if calendar.isDateInYesterday(self) {
             return "Yesterday"
         }
-        let currentYear = calendar.component(.year, from: Date())
-        let dateYear = calendar.component(.year, from: self)
         
-        if currentYear == dateYear {
-            dateFormatter.dateFormat = "d MMM"
-        } else {
-            dateFormatter.dateFormat = "d MMM yy"
-        }
-        
+        let isSameYear = calendar.isDate(self, equalTo: Date(), toGranularity: .year)
+        dateFormatter.dateFormat = isSameYear ? "d MMM" : "d MMM yy"
         return dateFormatter.string(from: self)
     }
     
     var startOfMonth: Date {
-
         let calendar = Calendar(identifier: .gregorian)
-        let components = calendar.dateComponents([.year, .month], from: self)
-
-        return  calendar.date(from: components)!
+        guard let date = calendar.date(from: calendar.dateComponents([.year, .month], from: self)) else {
+            Logger.error("Failed to calculate start of month for date: \(self)")
+            return self
+        }
+        return date
     }
 
     var startOfDay: Date {
-        return Calendar.current.startOfDay(for: self)
+        Calendar.current.startOfDay(for: self)
     }
 
-    func startOfWeek() -> Date {
+    func startOfWeek() -> Date? {
         let calendar = Calendar.current
-        var components = calendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: self.startOfDay)
-        let mondayInWeek = calendar.date(from: components)!
+        let components = calendar.dateComponents([.weekOfYear, .yearForWeekOfYear], from: self.startOfDay)
+        guard let mondayInWeek = calendar.date(from: components) else {
+            Logger.error("Failed to calculate start of week for date: \(self)")
+            return nil
+        }
         return mondayInWeek
     }
     
@@ -46,7 +44,7 @@ extension Date {
         let routeDay = self.startOfDay
         return routeDay >= startDay && routeDay <= endDay
     }
-        
+    
     func addingTimeInterval(_ interval: TimeRange) -> Date? {
         let calendar = Calendar.current
         switch interval {
@@ -55,13 +53,21 @@ extension Date {
         case .month:
             return calendar.date(byAdding: .month, value: 1, to: self)
         case .sixMonths:
-            return calendar.date(byAdding: .month, value: 6, to: self.endOfMonth())
+            guard let endOfMonthDate = self.endOfMonth() else {
+                Logger.error("Failed to calculate end of month for adding time interval.")
+                return nil
+            }
+            return calendar.date(byAdding: .month, value: 6, to: endOfMonthDate)
         case .year:
-            return calendar.date(byAdding: .year, value: 1, to: self.endOfMonth())
+            guard let endOfMonthDate = self.endOfMonth() else {
+                Logger.error("Failed to calculate end of month for adding time interval.")
+                return nil
+            }
+            return calendar.date(byAdding: .year, value: 1, to: endOfMonthDate)
         }
     }
     
-    func substractingTimeInterval(_ interval: TimeRange) -> Date? {
+    func subtractingTimeInterval(_ interval: TimeRange) -> Date? {
         let calendar = Calendar.current
         switch interval {
         case .week:
@@ -106,11 +112,20 @@ extension Date {
         }
     }
     
-    func startOfWeek(using calendar: Calendar) -> Date {
-        calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self).date!
+    func startOfWeek(using calendar: Calendar = .current) -> Date? {
+        let components = calendar.dateComponents([.calendar, .yearForWeekOfYear, .weekOfYear], from: self)
+        guard let date = components.date else {
+            Logger.error("Failed to calculate start of week using calendar: \(calendar)")
+            return nil
+        }
+        return date
     }
     
-    func endOfMonth() -> Date {
-        return Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.startOfMonth)!
+    func endOfMonth() -> Date? {
+        guard let date = Calendar.current.date(byAdding: DateComponents(month: 1, day: -1), to: self.startOfMonth) else {
+            Logger.error("Failed to calculate end of month for date: \(self)")
+            return nil
+        }
+        return date
     }
 }
